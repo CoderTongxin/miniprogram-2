@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>I Agree - 情侣电子流审批小程序原型</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+            padding: 40px 20px;
+            min-height: 100vh;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            color: white;
+        }
+        .header h1 {
+            font-size: 36px;
+            font-weight: 700;
+            margin-bottom: 12px;
+            text-shadow: 0 2px 8px rgba(0,0,0,0.2);
+        }
+        .header p {
+            font-size: 16px;
+            opacity: 0.95;
+        }
+        .header .subtitle {
+            font-size: 14px;
+            opacity: 0.85;
+            margin-top: 8px;
+        }
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        .pages-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(393px, 1fr));
+            gap: 40px;
+            justify-items: center;
+        }
+        .phone-frame {
+            width: 393px;
+            height: 852px;
+            background: #000;
+            border-radius: 40px;
+            padding: 8px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+            position: relative;
+            transition: transform 0.3s ease;
+        }
+        .phone-frame:hover {
+            transform: translateY(-5px);
+        }
+        .phone-notch {
+            position: absolute;
+            top: 8px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 120px;
+            height: 30px;
+            background: #000;
+            border-radius: 0 0 20px 20px;
+            z-index: 10;
+        }
+        .phone-screen {
+            width: 100%;
+            height: 100%;
+            border-radius: 32px;
+            overflow: hidden;
+            background: #fff;
+        }
+        iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+        .page-info {
+            text-align: center;
+            margin-top: 16px;
+        }
+        .page-title {
+            font-weight: 700;
+            font-size: 18px;
+            color: white;
+            margin-bottom: 4px;
+        }
+        .page-desc {
+            font-size: 13px;
+            color: rgba(255,255,255,0.8);
+        }
+        .features {
+            background: rgba(255,255,255,0.15);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            padding: 24px;
+            margin-top: 40px;
+            color: white;
+        }
+        .features h2 {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 16px;
+        }
+        .features ul {
+            list-style: none;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 12px;
+        }
+        .features li {
+            padding: 8px 0;
+            padding-left: 24px;
+            position: relative;
+        }
+        .features li:before {
+            content: '✓';
+            position: absolute;
+            left: 0;
+            font-weight: bold;
+            color: #4ade80;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- 标题区域 -->
+        <div class="header">
+            <h1>💑 I Agree</h1>
+            <p>情侣电子流审批小程序原型</p>
+            <p class="subtitle">模拟 iPhone 15 Pro 屏幕尺寸 (393×852px) | 使用 TDesign 设计风格</p>
+        </div>
+
+        <!-- 页面展示网格 -->
+        <div class="pages-grid">
+            <!-- 首页 - 我的待办 -->
+            <div>
+                <div class="phone-frame">
+                    <div class="phone-notch"></div>
+                    <div class="phone-screen">
+                        <iframe src="home.html"></iframe>
+                    </div>
+                </div>
+                <div class="page-info">
+                    <div class="page-title">1️⃣ 首页</div>
+                    <div class="page-desc">包含我的待办、我的申请、已完成三个标签页</div>
+                </div>
+            </div>
+
+            <!-- 电子流创建/编辑页 -->
+            <div>
+                <div class="phone-frame">
+                    <div class="phone-notch"></div>
+                    <div class="phone-screen">
+                        <iframe src="editFlow.html"></iframe>
+                    </div>
+                </div>
+                <div class="page-info">
+                    <div class="page-title">2️⃣ 创建/编辑页</div>
+                    <div class="page-desc">新建电子流申请，填写内容、金额、类型等信息</div>
+                </div>
+            </div>
+
+            <!-- 电子流详情页 - 待审批 -->
+            <div>
+                <div class="phone-frame">
+                    <div class="phone-notch"></div>
+                    <div class="phone-screen">
+                        <iframe src="flow-detail.html"></iframe>
+                    </div>
+                </div>
+                <div class="page-info">
+                    <div class="page-title">3️⃣ 详情页 - 待审批</div>
+                    <div class="page-desc">查看申请详情、审批流程，支持通过/驳回操作</div>
+                </div>
+            </div>
+
+            <!-- 电子流详情页 - 已完成 -->
+            <div>
+                <div class="phone-frame">
+                    <div class="phone-notch"></div>
+                    <div class="phone-screen">
+                        <iframe src="flow-detail-completed.html"></iframe>
+                    </div>
+                </div>
+                <div class="page-info">
+                    <div class="page-title">4️⃣ 详情页 - 已完成</div>
+                    <div class="page-desc">已通过的申请，显示完整审批流程和统计信息</div>
+                </div>
+            </div>
+
+            <!-- 电子流详情页 - 已驳回 -->
+            <div>
+                <div class="phone-frame">
+                    <div class="phone-notch"></div>
+                    <div class="phone-screen">
+                        <iframe src="flow-detail-rejected.html"></iframe>
+                    </div>
+                </div>
+                <div class="page-info">
+                    <div class="page-title">5️⃣ 详情页 - 已驳回</div>
+                    <div class="page-desc">被驳回的申请，显示驳回原因，支持重新编辑</div>
+                </div>
+            </div>
+
+            <!-- 统计分析页 -->
+            <div>
+                <div class="phone-frame">
+                    <div class="phone-notch"></div>
+                    <div class="phone-screen">
+                        <iframe src="statistics.html"></iframe>
+                    </div>
+                </div>
+                <div class="page-info">
+                    <div class="page-title">6️⃣ 统计分析页</div>
+                    <div class="page-desc">年度/月度数据统计，分类支出分析，趋势图表</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 功能特性说明 -->
+        <div class="features">
+            <h2>📋 核心功能特性</h2>
+            <ul>
+                <li>用户信息展示与本月支出统计</li>
+                <li>三个标签页切换（待办/申请/已完成）</li>
+                <li>按类型筛选电子流（拨款/出行/其他）</li>
+                <li>完整的电子流详情展示</li>
+                <li>审批流程时间线可视化</li>
+                <li>审批操作（通过/驳回含原因）</li>
+                <li>创建电子流表单（必填项校验）</li>
+                <li>支持上传图片凭证（最多3张）</li>
+                <li>金额输入与格式化显示</li>
+                <li>状态标签颜色区分（待审批/已完成/已驳回）</li>
+                <li>类型标签颜色区分（3种类型）</li>
+                <li>选择"其他"类型时金额为选填项</li>
+                <li>独立统计页面（年度/月度切换）</li>
+                <li>分类支出统计图表（柱状图）</li>
+                <li>支出趋势分析（月度对比）</li>
+                <li>统计摘要卡片（日均/最大单笔等）</li>
+                <li>首页点击支出金额进入统计页</li>
+                <li>响应式交互与动画效果</li>
+            </ul>
+        </div>
+    </div>
+</body>
+</html>
+
+
+
+
