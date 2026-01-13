@@ -17,28 +17,21 @@
             padding: 12px 16px;
             display: flex;
             align-items: center;
-            justify-content: space-between;
             border-bottom: 1px solid #e5e5e5;
         }
         .back-btn {
-            font-size: 16px;
+            font-size: 20px;
             color: #666;
+            margin-right: 12px;
         }
         .nav-title {
-            font-size: 16px;
-            font-weight: 500;
-            position: absolute;
-            left: 50%;
-            transform: translateX(-50%);
-        }
-        .submit-btn {
-            color: #0052d9;
             font-size: 16px;
             font-weight: 500;
         }
         .form-container {
             background: white;
             margin: 12px;
+            margin-bottom: 80px;
             border-radius: 8px;
             padding: 0;
             overflow: hidden;
@@ -123,60 +116,6 @@
             font-size: 18px;
             font-weight: 500;
         }
-        .upload-area {
-            border: 2px dashed #e5e5e5;
-            border-radius: 6px;
-            padding: 24px;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-        .upload-area:hover {
-            border-color: #0052d9;
-            background: #f8fbff;
-        }
-        .upload-icon {
-            font-size: 32px;
-            color: #999;
-            margin-bottom: 8px;
-        }
-        .upload-text {
-            font-size: 14px;
-            color: #999;
-        }
-        .image-preview {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-            margin-top: 12px;
-        }
-        .preview-item {
-            width: 80px;
-            height: 80px;
-            border-radius: 6px;
-            overflow: hidden;
-            position: relative;
-        }
-        .preview-item img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-        .preview-delete {
-            position: absolute;
-            top: 4px;
-            right: 4px;
-            background: rgba(0,0,0,0.6);
-            color: white;
-            width: 20px;
-            height: 20px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 14px;
-            cursor: pointer;
-        }
         .tip-text {
             font-size: 13px;
             color: #999;
@@ -196,14 +135,42 @@
             border-radius: 50%;
             margin-right: 12px;
         }
+        .action-buttons {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            padding: 12px 16px;
+            display: flex;
+            gap: 12px;
+            box-shadow: 0 -2px 8px rgba(0,0,0,0.06);
+        }
+        .btn {
+            flex: 1;
+            padding: 14px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 500;
+            border: none;
+            cursor: pointer;
+        }
+        .btn-cancel {
+            background: #fff;
+            color: #666;
+            border: 1px solid #e5e5e5;
+        }
+        .btn-submit {
+            background: #0052d9;
+            color: white;
+        }
     </style>
 </head>
 <body>
     <!-- 导航栏 -->
     <div class="nav-bar">
-        <span class="back-btn">取消</span>
+        <span class="back-btn">←</span>
         <span class="nav-title">新建电子流</span>
-        <span class="submit-btn" onclick="submitForm()">提交</span>
     </div>
 
     <!-- 表单容器 -->
@@ -253,18 +220,6 @@
             </div>
         </div>
 
-        <!-- 上传凭证 -->
-        <div class="form-item">
-            <div class="form-label">上传凭证（可选）</div>
-            <div class="upload-area" onclick="document.getElementById('fileInput').click()">
-                <div class="upload-icon">📷</div>
-                <div class="upload-text">点击上传图片凭证</div>
-                <div class="tip-text">支持 JPG、PNG 格式，最多上传 3 张</div>
-            </div>
-            <input type="file" id="fileInput" accept="image/*" multiple style="display: none;" onchange="handleFileSelect(event)">
-            <div class="image-preview" id="imagePreview"></div>
-        </div>
-
         <!-- 审批人 -->
         <div class="form-item">
             <div class="form-label">审批人</div>
@@ -278,9 +233,21 @@
         </div>
     </div>
 
+    <!-- 底部操作按钮 -->
+    <div class="action-buttons">
+        <button class="btn btn-cancel" onclick="cancelForm()">取消</button>
+        <button class="btn btn-submit" onclick="submitForm()">提交</button>
+    </div>
+
     <script>
         let selectedType = '';
-        let uploadedImages = [];
+
+        function cancelForm() {
+            if (confirm('确定要取消吗？未保存的内容将丢失。')) {
+                alert('已取消');
+                // 在真实小程序中，这里会使用 wx.navigateBack() 返回
+            }
+        }
 
         function selectType(element, type) {
             // 移除所有选中状态
@@ -302,53 +269,6 @@
                 amountRequired.style.display = 'inline';
                 amountTip.style.display = 'none';
             }
-        }
-
-        function handleFileSelect(event) {
-            const files = event.target.files;
-            const preview = document.getElementById('imagePreview');
-            
-            // 限制最多3张
-            if (uploadedImages.length + files.length > 3) {
-                alert('最多只能上传3张图片');
-                return;
-            }
-
-            for (let i = 0; i < files.length; i++) {
-                const file = files[i];
-                const reader = new FileReader();
-                
-                reader.onload = function(e) {
-                    const img = {
-                        id: Date.now() + i,
-                        url: e.target.result
-                    };
-                    uploadedImages.push(img);
-                    renderImages();
-                };
-                
-                reader.readAsDataURL(file);
-            }
-        }
-
-        function renderImages() {
-            const preview = document.getElementById('imagePreview');
-            preview.innerHTML = '';
-            
-            uploadedImages.forEach((img, index) => {
-                const div = document.createElement('div');
-                div.className = 'preview-item';
-                div.innerHTML = `
-                    <img src="${img.url}" alt="预览图">
-                    <div class="preview-delete" onclick="deleteImage(${index})">×</div>
-                `;
-                preview.appendChild(div);
-            });
-        }
-
-        function deleteImage(index) {
-            uploadedImages.splice(index, 1);
-            renderImages();
         }
 
         function submitForm() {
