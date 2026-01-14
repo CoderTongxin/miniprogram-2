@@ -1,0 +1,37 @@
+{
+  "compilerOptions": {
+    /* 与微信开发者工具默认行为保持兼容 */
+    "target": "es2015",
+    "module": "commonjs",
+    "lib": ["es2015"],
+    "allowJs": true,
+    "outDir": "./",
+    "rootDir": "./",
+
+    /* 开启严格的类型检查（核心！） */
+    "strict": true,
+    "noImplicitAny": false, // 可先设为 false，适应期更友好
+    "strictNullChecks": true,
+
+    /* 模块解析 */
+    "moduleResolution": "node",
+    "baseUrl": "./",
+    "paths": {
+      "@/*": ["miniprogram/*"],
+      "tdesign-miniprogram/*":["./miniprogram/miniprogram_npm/tdesign-miniprogram/*"]
+    },
+
+    /* 其他重要选项 */
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true
+  },
+  "include": [
+    "miniprogram/**/*.ts",
+    "miniprogram/**/*.js"
+  ],
+  "exclude": [
+    "node_modules",
+    "miniprogram_npm"
+  ]
+}
