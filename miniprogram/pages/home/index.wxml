@@ -1,0 +1,73 @@
+<!-- 首页 -->
+<view class="page">
+  <!-- 用户信息区 -->
+  <view class="user-info">
+    <view class="user-header">
+      <view class="user-left">
+        <image class="avatar" src="{{userInfo.avatarUrl}}" mode="aspectFill"></image>
+        <view class="user-text">
+          <text class="user-name">{{userInfo.nickName}}</text>
+          <text class="user-welcome">欢迎回来</text>
+        </view>
+      </view>
+      <view class="user-right" bindtap="goToStatistics">
+        <text class="stat-label">本月支出 →</text>
+        <text class="stat-amount">¥{{monthlyExpense}}</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- Tab 标签栏 -->
+  <t-tabs value="{{activeTab}}" bind:change="onTabChange" theme="line" class="tabs-container">
+    <t-tab-panel label="我的待办" value="todo" />
+    <t-tab-panel label="我的申请" value="myapply" />
+    <t-tab-panel label="已完成" value="completed" />
+  </t-tabs>
+
+  <!-- 筛选栏 -->
+  <view class="filter-bar">
+    <view class="filter-chip {{currentFilter === 'all' ? 'active' : ''}}" bindtap="onFilterChange" data-filter="all">全部</view>
+    <view class="filter-chip {{currentFilter === 'funds' ? 'active' : ''}}" bindtap="onFilterChange" data-filter="funds">拨款</view>
+    <view class="filter-chip {{currentFilter === 'travel' ? 'active' : ''}}" bindtap="onFilterChange" data-filter="travel">出行</view>
+    <view class="filter-chip {{currentFilter === 'other' ? 'active' : ''}}" bindtap="onFilterChange" data-filter="other">其他</view>
+  </view>
+
+  <!-- 电子流列表 -->
+  <view class="flow-list">
+    <view wx:if="{{flowList.length === 0}}" class="empty-state">
+      <t-empty description="暂无数据" />
+    </view>
+    <view wx:else>
+      <view class="flow-item" wx:for="{{flowList}}" wx:key="id" bindtap="goToDetail" data-id="{{item.id}}">
+        <view class="flow-header">
+          <image class="flow-avatar" src="{{item.applicantAvatar}}" mode="aspectFill"></image>
+          <view class="flow-user-info">
+            <text class="flow-user-name">{{item.applicantName}}</text>
+            <text class="flow-time">{{item.createTime}}</text>
+          </view>
+          <view class="flow-badges">
+            <t-tag theme="{{item.status === 'pending' ? 'warning' : item.status === 'completed' ? 'success' : 'danger'}}" size="small" variant="light">
+              {{item.statusText}}
+            </t-tag>
+            <t-tag theme="{{item.type === 'funds' ? 'primary' : item.type === 'travel' ? 'warning' : 'default'}}" size="small" variant="light">
+              {{item.typeText}}
+            </t-tag>
+          </view>
+        </view>
+        <view class="flow-content">{{item.content}}</view>
+        <view class="flow-footer">
+          <text class="flow-amount">¥{{item.amount}}</text>
+          <view class="flow-action">
+            <text wx:if="{{item.status === 'rejected'}}" class="action-text rejected">重新编辑</text>
+            <text wx:else class="action-text">查看详情</text>
+          </view>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 新建电子流按钮 -->
+  <view class="fab-button" bindtap="goToCreate">
+    <t-icon name="add" size="48rpx" color="#FFFFFF" />
+  </view>
+</view>

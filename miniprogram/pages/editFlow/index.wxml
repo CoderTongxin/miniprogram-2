@@ -1,0 +1,94 @@
+<!-- 创建/编辑电子流 -->
+<view class="page">
+  <view class="form-container">
+    <!-- 申请内容 -->
+    <t-cell-group theme="card">
+      <t-cell title="申请内容" required>
+        <t-textarea
+          slot="note"
+          value="{{formData.content}}"
+          placeholder="请详细描述您的申请内容..."
+          maxlength="500"
+          indicator
+          bind:change="onContentChange"
+          auto-height
+        />
+      </t-cell>
+      <view class="tip-text">建议说明申请的原因和用途，便于审批人了解</view>
+    </t-cell-group>
+
+    <!-- 申请金额 -->
+    <t-cell-group theme="card">
+      <t-cell title="申请金额" required="{{!isOtherType}}">
+        <t-input
+          slot="note"
+          type="digit"
+          value="{{formData.amount}}"
+          placeholder="0.00"
+          prefix-icon="money-circle"
+          bind:change="onAmountChange"
+        />
+      </t-cell>
+      <view class="tip-text" wx:if="{{isOtherType}}" style="color: #E37318;">
+        选择"其他"类型时，金额为选填项
+      </view>
+    </t-cell-group>
+
+    <!-- 申请类型 -->
+    <t-cell-group theme="card">
+      <t-cell title="申请类型" required />
+      <view class="type-grid">
+        <view 
+          class="type-item {{formData.type === 'funds' ? 'active' : ''}}" 
+          bindtap="onTypeChange" 
+          data-type="funds"
+        >
+          <text class="type-icon">💰</text>
+          <text class="type-name">拨款</text>
+        </view>
+        <view 
+          class="type-item {{formData.type === 'travel' ? 'active' : ''}}" 
+          bindtap="onTypeChange" 
+          data-type="travel"
+        >
+          <text class="type-icon">✈️</text>
+          <text class="type-name">出行</text>
+        </view>
+        <view 
+          class="type-item {{formData.type === 'other' ? 'active' : ''}}" 
+          bindtap="onTypeChange" 
+          data-type="other"
+        >
+          <text class="type-icon">📋</text>
+          <text class="type-name">其他</text>
+        </view>
+      </view>
+    </t-cell-group>
+
+    <!-- 审批人 -->
+    <t-cell-group theme="card">
+      <t-cell title="审批人">
+        <view slot="note" class="approver-section">
+          <image class="approver-avatar" src="{{approver.avatar}}" mode="aspectFill"></image>
+          <view class="approver-info">
+            <text class="approver-name">{{approver.name}}</text>
+            <text class="approver-role">默认审批人</text>
+          </view>
+        </view>
+      </t-cell>
+    </t-cell-group>
+  </view>
+
+  <!-- 底部操作按钮 -->
+  <view class="action-buttons">
+    <t-button theme="default" size="large" bind:tap="onCancel" class="btn-cancel">
+      取消
+    </t-button>
+    <t-button theme="primary" size="large" bind:tap="onSubmit" class="btn-submit">
+      提交
+    </t-button>
+  </view>
+
+  <!-- Toast 提示 -->
+  <t-toast id="t-toast" />
+</view>

@@ -1,0 +1,135 @@
+<!-- 统计分析 -->
+<view class="page">
+  <!-- 头部统计卡片 -->
+  <view class="header-card">
+    <text class="header-title">{{currentPeriodText}} 总支出</text>
+    <text class="header-amount">¥{{totalAmount}}</text>
+    <view class="stats-row">
+      <view class="stat-item">
+        <text class="stat-value">{{totalCount}}</text>
+        <text class="stat-label">申请总数</text>
+      </view>
+      <view class="stat-item">
+        <text class="stat-value">{{approvedCount}}</text>
+        <text class="stat-label">已通过</text>
+      </view>
+      <view class="stat-item">
+        <text class="stat-value">{{approveRate}}%</text>
+        <text class="stat-label">通过率</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 筛选器 -->
+  <view class="filter-card">
+    <text class="filter-title">选择时间范围</text>
+    
+    <!-- 年度/月度切换 -->
+    <view class="filter-tabs">
+      <view 
+        class="filter-tab {{periodType === 'year' ? 'active' : ''}}" 
+        bindtap="onPeriodTypeChange" 
+        data-type="year"
+      >
+        年度
+      </view>
+      <view 
+        class="filter-tab {{periodType === 'month' ? 'active' : ''}}" 
+        bindtap="onPeriodTypeChange" 
+        data-type="month"
+      >
+        月度
+      </view>
+    </view>
+
+    <!-- 年度选择 -->
+    <view wx:if="{{periodType === 'year'}}" class="period-grid">
+      <view 
+        wx:for="{{yearList}}" 
+        wx:key="*this"
+        class="period-item {{selectedYear === item ? 'active' : ''}}"
+        bindtap="onYearChange"
+        data-year="{{item}}"
+      >
+        {{item}}年
+      </view>
+    </view>
+
+    <!-- 月度选择 -->
+    <view wx:if="{{periodType === 'month'}}" class="period-grid">
+      <view 
+        wx:for="{{monthList}}" 
+        wx:key="*this"
+        class="period-item {{selectedMonth === item ? 'active' : ''}}"
+        bindtap="onMonthChange"
+        data-month="{{item}}"
+      >
+        {{item}}月
+      </view>
+    </view>
+  </view>
+
+  <!-- 分类统计 -->
+  <view class="chart-card">
+    <view class="card-header">
+      <text class="card-title">📊 分类支出统计</text>
+      <text class="card-subtitle">{{currentPeriodText}}</text>
+    </view>
+    
+    <view class="type-stats">
+      <view class="type-row" wx:for="{{typeStats}}" wx:key="type">
+        <text class="type-label">{{item.name}}</text>
+        <view class="type-bar-wrapper">
+          <view class="type-bar" style="background: {{item.lightColor}};">
+            <view 
+              class="type-bar-fill" 
+              style="width: {{item.percentage}}%; background: {{item.color}};"
+            ></view>
+          </view>
+        </view>
+        <text class="type-amount">¥{{item.amount}}</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 支出趋势 -->
+  <view class="chart-card">
+    <text class="card-title">📈 支出趋势</text>
+    
+    <view class="trend-list">
+      <view class="trend-item" wx:for="{{trendData}}" wx:key="period">
+        <text class="trend-period">{{item.period}}</text>
+        <view class="trend-right">
+          <text class="trend-amount">¥{{item.amount}}</text>
+          <text class="trend-change {{item.change >= 0 ? 'up' : 'down'}}">
+            {{item.change >= 0 ? '+' : ''}}{{item.change}}%
+          </text>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 统计摘要 -->
+  <view class="chart-card">
+    <text class="card-title">💡 {{periodType === 'year' ? '年度' : '本月'}}统计摘要</text>
+    
+    <view class="summary-grid">
+      <view class="summary-card">
+        <text class="summary-label">日均支出</text>
+        <text class="summary-value primary">¥{{avgDaily}}</text>
+      </view>
+      <view class="summary-card">
+        <text class="summary-label">最大单笔</text>
+        <text class="summary-value success">¥{{maxSingle}}</text>
+      </view>
+      <view class="summary-card">
+        <text class="summary-label">最常申请</text>
+        <text class="summary-value warning">{{mostFrequent}}</text>
+      </view>
+      <view class="summary-card">
+        <text class="summary-label">驳回次数</text>
+        <text class="summary-value danger">{{rejectedCount}}</text>
+      </view>
+    </view>
+  </view>
+</view>

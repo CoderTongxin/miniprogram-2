@@ -1,0 +1,151 @@
+<!-- 电子流详情 -->
+<view class="page">
+  <!-- 成功/驳回横幅 -->
+  <view wx:if="{{flowData.status === 'completed'}}" class="status-banner success">
+    <text class="banner-icon">✓</text>
+    <text class="banner-text">申请已通过</text>
+    <text class="banner-time">审批完成时间：{{flowData.approveTime}}</text>
+  </view>
+
+  <!-- 详情卡片 -->
+  <view class="detail-card">
+    <!-- 用户信息 -->
+    <view class="user-section">
+      <image class="avatar" src="{{flowData.applicantAvatar}}" mode="aspectFill"></image>
+      <view class="user-info">
+        <text class="user-name">{{flowData.applicantName}}</text>
+        <text class="user-time">{{flowData.createTime}}</text>
+      </view>
+      <view class="status-badge">
+        <t-tag 
+          theme="{{flowData.status === 'pending' ? 'warning' : flowData.status === 'completed' ? 'success' : 'danger'}}" 
+          variant="light"
+        >
+          {{flowData.statusText}}
+        </t-tag>
+      </view>
+    </view>
+
+    <!-- 金额 -->
+    <view class="info-row">
+      <text class="info-label">申请金额</text>
+      <text class="info-amount {{flowData.status === 'completed' ? 'completed' : ''}}">
+        ¥{{flowData.amount}}
+      </text>
+    </view>
+
+    <!-- 类型 -->
+    <view class="info-row">
+      <text class="info-label">申请类型</text>
+      <t-tag 
+        theme="{{flowData.type === 'funds' ? 'primary' : flowData.type === 'travel' ? 'warning' : 'default'}}" 
+        variant="light"
+      >
+        {{flowData.typeText}}
+      </t-tag>
+    </view>
+
+    <!-- 申请内容 -->
+    <view class="info-row">
+      <text class="info-label">申请内容</text>
+      <text class="info-value">{{flowData.content}}</text>
+    </view>
+
+    <!-- 审批人 -->
+    <view class="info-row last">
+      <text class="info-label">审批人</text>
+      <view class="approver-info">
+        <image class="approver-avatar" src="{{flowData.approverAvatar}}" mode="aspectFill"></image>
+        <text class="approver-name">{{flowData.approverName}}</text>
+      </view>
+    </view>
+
+    <!-- 驳回原因 -->
+    <view wx:if="{{flowData.status === 'rejected'}}" class="reject-reason">
+      <view class="reject-title">💬 驳回原因</view>
+      <text class="reject-text">{{flowData.rejectReason}}</text>
+    </view>
+  </view>
+
+  <!-- 审批流程 -->
+  <view class="detail-card">
+    <text class="section-title">审批流程</text>
+    <view class="timeline">
+      <view class="timeline-item">
+        <view class="timeline-dot"></view>
+        <view class="timeline-content">
+          <text class="timeline-title">{{flowData.applicantName}} 发起申请</text>
+          <text class="timeline-time">{{flowData.createTime}}</text>
+        </view>
+      </view>
+      
+      <view wx:if="{{flowData.status === 'pending'}}" class="timeline-item">
+        <view class="timeline-dot pending"></view>
+        <view class="timeline-content">
+          <text class="timeline-title gray">等待 {{flowData.approverName}} 审批</text>
+          <text class="timeline-time">待处理</text>
+        </view>
+      </view>
+
+      <view wx:if="{{flowData.status === 'completed'}}" class="timeline-item">
+        <view class="timeline-dot completed"></view>
+        <view class="timeline-content">
+          <text class="timeline-title success">{{flowData.approverName}} 通过了申请</text>
+          <text class="timeline-time">{{flowData.approveTime}}</text>
+          <text wx:if="{{flowData.approveComment}}" class="timeline-comment">
+            {{flowData.approveComment}}
+          </text>
+        </view>
+      </view>
+
+      <view wx:if="{{flowData.status === 'rejected'}}" class="timeline-item">
+        <view class="timeline-dot rejected"></view>
+        <view class="timeline-content">
+          <text class="timeline-title rejected">{{flowData.approverName}} 驳回了申请</text>
+          <text class="timeline-time">{{flowData.approveTime}}</text>
+          <text class="timeline-comment">{{flowData.rejectReason}}</text>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 审批操作按钮（仅待审批状态显示） -->
+  <view wx:if="{{flowData.status === 'pending' && canApprove}}" class="action-buttons">
+    <t-button theme="default" size="large" bind:tap="onReject" class="btn-reject">
+      驳回
+    </t-button>
+    <t-button theme="primary" size="large" bind:tap="onApprove" class="btn-approve">
+      通过
+    </t-button>
+  </view>
+
+  <!-- 重新编辑按钮（已驳回状态显示） -->
+  <view wx:if="{{flowData.status === 'rejected' && canEdit}}" class="action-buttons">
+    <t-button theme="primary" size="large" bind:tap="onEdit" block>
+      重新编辑并提交
+    </t-button>
+  </view>
+
+  <!-- 驳回弹窗 -->
+  <t-dialog
+    visible="{{showRejectDialog}}"
+    title="驳回原因"
+    confirm-btn="确认驳回"
+    cancel-btn="取消"
+    bind:confirm="onConfirmReject"
+    bind:cancel="onCancelReject"
+  >
+    <t-textarea
+      slot="content"
+      value="{{rejectReason}}"
+      placeholder="请输入驳回原因（必填）"
+      maxlength="200"
+      indicator
+      bind:change="onRejectReasonChange"
+      auto-height
+    />
+  </t-dialog>
+
+  <!-- Toast 提示 -->
+  <t-toast id="t-toast" />
+</view>

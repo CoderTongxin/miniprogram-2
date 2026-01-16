@@ -1,0 +1,271 @@
+/* pages/flow-detail/index.wxss */
+.page {
+  min-height: 100vh;
+  background: #F5F5F5;
+  padding-bottom: 140rpx;
+}
+
+/* 状态横幅 */
+.status-banner {
+  padding: 48rpx 40rpx;
+  text-align: center;
+  color: #FFFFFF;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.status-banner.success {
+  background: linear-gradient(135deg, #029B6C 0%, #00C48C 100%);
+}
+
+.banner-icon {
+  font-size: 96rpx;
+  margin-bottom: 16rpx;
+}
+
+.banner-text {
+  font-size: 36rpx;
+  font-weight: 600;
+  margin-bottom: 12rpx;
+}
+
+.banner-time {
+  font-size: 26rpx;
+  opacity: 0.9;
+}
+
+/* 详情卡片 */
+.detail-card {
+  background: #FFFFFF;
+  margin: 24rpx;
+  border-radius: 16rpx;
+  padding: 32rpx;
+}
+
+/* 用户信息区域 */
+.user-section {
+  display: flex;
+  align-items: center;
+  padding-bottom: 32rpx;
+  border-bottom: 2rpx solid #F2F3F5;
+}
+
+.avatar {
+  width: 100rpx;
+  height: 100rpx;
+  border-radius: 50%;
+  margin-right: 24rpx;
+  flex-shrink: 0;
+}
+
+.user-info {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.user-name {
+  font-size: 32rpx;
+  font-weight: 600;
+  color: #333333;
+  margin-bottom: 12rpx;
+}
+
+.user-time {
+  font-size: 26rpx;
+  color: #999999;
+}
+
+.status-badge {
+  flex-shrink: 0;
+}
+
+/* 信息行 */
+.info-row {
+  padding: 32rpx 0;
+  border-bottom: 2rpx solid #F2F3F5;
+}
+
+.info-row.last {
+  border-bottom: none;
+}
+
+.info-label {
+  font-size: 28rpx;
+  color: #999999;
+  margin-bottom: 16rpx;
+  display: block;
+}
+
+.info-amount {
+  font-size: 56rpx;
+  font-weight: 600;
+  color: #D54941;
+}
+
+.info-amount.completed {
+  color: #029B6C;
+}
+
+.info-value {
+  font-size: 30rpx;
+  color: #333333;
+  line-height: 1.6;
+  display: block;
+}
+
+.approver-info {
+  display: flex;
+  align-items: center;
+}
+
+.approver-avatar {
+  width: 60rpx;
+  height: 60rpx;
+  border-radius: 50%;
+  margin-right: 16rpx;
+}
+
+.approver-name {
+  font-size: 30rpx;
+  color: #333333;
+}
+
+/* 驳回原因 */
+.reject-reason {
+  margin-top: 32rpx;
+  padding: 24rpx;
+  background: #FFE9E9;
+  border-radius: 12rpx;
+  border-left: 8rpx solid #D54941;
+}
+
+.reject-title {
+  font-size: 28rpx;
+  font-weight: 600;
+  color: #D54941;
+  margin-bottom: 16rpx;
+}
+
+.reject-text {
+  font-size: 28rpx;
+  color: #666666;
+  line-height: 1.6;
+  display: block;
+}
+
+/* 审批流程 */
+.section-title {
+  font-size: 32rpx;
+  font-weight: 600;
+  color: #333333;
+  margin-bottom: 32rpx;
+  display: block;
+}
+
+.timeline {
+  padding: 16rpx 0;
+}
+
+.timeline-item {
+  display: flex;
+  padding-bottom: 40rpx;
+  position: relative;
+}
+
+.timeline-item:not(:last-child)::after {
+  content: '';
+  position: absolute;
+  left: 8rpx;
+  top: 40rpx;
+  bottom: 0;
+  width: 4rpx;
+  background: #E5E5E5;
+}
+
+.timeline-dot {
+  width: 20rpx;
+  height: 20rpx;
+  border-radius: 50%;
+  background: #0052D9;
+  margin-right: 24rpx;
+  margin-top: 8rpx;
+  flex-shrink: 0;
+  z-index: 1;
+}
+
+.timeline-dot.pending {
+  background: #E5E5E5;
+}
+
+.timeline-dot.completed {
+  background: #029B6C;
+}
+
+.timeline-dot.rejected {
+  background: #D54941;
+}
+
+.timeline-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.timeline-title {
+  font-size: 30rpx;
+  font-weight: 500;
+  color: #333333;
+  margin-bottom: 8rpx;
+}
+
+.timeline-title.gray {
+  color: #999999;
+}
+
+.timeline-title.success {
+  color: #029B6C;
+}
+
+.timeline-title.rejected {
+  color: #D54941;
+}
+
+.timeline-time {
+  font-size: 24rpx;
+  color: #999999;
+  margin-bottom: 8rpx;
+}
+
+.timeline-comment {
+  font-size: 26rpx;
+  color: #666666;
+  line-height: 1.6;
+  margin-top: 8rpx;
+  padding: 16rpx;
+  background: #F8FBFF;
+  border-radius: 8rpx;
+}
+
+/* 底部操作按钮 */
+.action-buttons {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: #FFFFFF;
+  padding: 24rpx 32rpx;
+  display: flex;
+  gap: 24rpx;
+  box-shadow: 0 -4rpx 16rpx rgba(0, 0, 0, 0.06);
+  z-index: 100;
+}
+
+.btn-reject {
+  flex: 1;
+}
+
+.btn-approve {
+  flex: 1;
+}

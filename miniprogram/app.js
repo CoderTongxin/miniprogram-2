@@ -6,8 +6,12 @@ App({
       //   env 参数决定接下来小程序发起的云开发调用（wx.cloud.xxx）会默认请求到哪个云环境的资源
       //   此处请填入环境 ID, 环境 ID 可打开云控制台查看
       //   如不填则使用默认环境（第一个创建的环境）
-      env: "cloud1-4gpgleakf7ebafb5"
+      env: "cloud1-4gpgleakf7ebafb5",
+      userInfo: null,
+      partnerId: null, // 伴侣的用户ID
+      flowList: [] // 电子流列表缓存
     };
+    
     if (!wx.cloud) {
       console.error("请使用 2.2.3 或以上的基础库以使用云能力");
     } else {
@@ -16,5 +20,37 @@ App({
         traceUser: true,
       });
     }
+
+    // 获取用户信息
+    this.getUserInfo();
   },
+
+  // 获取用户信息
+  getUserInfo() {
+    const userInfo = wx.getStorageSync('userInfo');
+    if (userInfo) {
+      this.globalData.userInfo = userInfo;
+    }
+  },
+
+  // 保存用户信息
+  setUserInfo(userInfo) {
+    this.globalData.userInfo = userInfo;
+    wx.setStorageSync('userInfo', userInfo);
+  },
+
+  // 获取伴侣ID
+  getPartnerId() {
+    const partnerId = wx.getStorageSync('partnerId');
+    if (partnerId) {
+      this.globalData.partnerId = partnerId;
+    }
+    return partnerId;
+  },
+
+  // 设置伴侣ID
+  setPartnerId(partnerId) {
+    this.globalData.partnerId = partnerId;
+    wx.setStorageSync('partnerId', partnerId);
+  }
 });
