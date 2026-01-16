@@ -4,7 +4,7 @@
   <view class="user-info">
     <view class="user-header">
       <view class="user-left">
-        <image class="avatar" src="{{userInfo.avatarUrl}}" mode="aspectFill"></image>
+        <image class="avatar" src="{{userInfo.avatarUrl}}" mode="aspectFill" bindtap="goToSettings"></image>
         <view class="user-text">
           <text class="user-name">{{userInfo.nickName}}</text>
           <text class="user-welcome">欢迎回来</text>

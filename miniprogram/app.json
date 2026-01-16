@@ -1,15 +1,17 @@
 {
   "pages": [
+    "pages/login/index",
     "pages/home/index",
     "pages/editFlow/index",
     "pages/flow-detail/index",
-    "pages/statistics/index"
+    "pages/statistics/index",
+    "pages/settings/index"
   ],
   "window": {
     "backgroundColor": "#F5F5F5",
     "backgroundTextStyle": "light",
     "navigationBarBackgroundColor": "#FFFFFF",
-    "navigationBarTitleText": "I Agree",
+    "navigationBarTitleText": "You and Me",
     "navigationBarTextStyle": "black"
   },
   "sitemapLocation": "sitemap.json",

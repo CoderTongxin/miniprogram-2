@@ -23,6 +23,30 @@ App({
 
     // 获取用户信息
     this.getUserInfo();
+    
+    // 检查登录状态
+    this.checkLogin();
+  },
+
+  // 检查登录状态
+  checkLogin() {
+    const userInfo = wx.getStorageSync('userInfo');
+    
+    if (!userInfo || !userInfo._openid) {
+      // 未登录，跳转到登录页
+      wx.reLaunch({
+        url: '/pages/login/index'
+      });
+      return false;
+    }
+    
+    // 已登录，保存到全局变量
+    this.globalData.userInfo = userInfo;
+    if (userInfo.partnerId) {
+      this.globalData.partnerId = userInfo.partnerId;
+    }
+    
+    return true;
   },
 
   // 获取用户信息

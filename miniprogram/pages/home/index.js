@@ -1,10 +1,7 @@
 // pages/home/index.js
 Page({
   data: {
-    userInfo: {
-      nickName: '谢熊猫',
-      avatarUrl: 'https://via.placeholder.com/100'
-    },
+    userInfo: {},
     monthlyExpense: '8,580',
     activeTab: 'todo',
     currentFilter: 'all',
@@ -113,7 +110,25 @@ Page({
   },
 
   onLoad() {
+    this.checkLogin();
     this.loadFlowList();
+  },
+
+  onShow() {
+    this.checkLogin();
+  },
+
+  // 检查登录状态
+  checkLogin() {
+    const userInfo = wx.getStorageSync('userInfo');
+    if (!userInfo || !userInfo._openid) {
+      wx.reLaunch({
+        url: '/pages/login/index'
+      });
+      return;
+    }
+    
+    this.setData({ userInfo });
   },
 
   // 加载电子流列表
@@ -171,6 +186,13 @@ Page({
   goToStatistics() {
     wx.navigateTo({
       url: '/pages/statistics/index'
+    });
+  },
+
+  // 跳转到设置页
+  goToSettings() {
+    wx.navigateTo({
+      url: '/pages/settings/index'
     });
   }
 });

@@ -1,0 +1,95 @@
+<!-- 登录页面 -->
+<view class="login-page">
+  <view class="login-container">
+    <!-- Logo区域 -->
+    <view class="logo-section">
+      <image class="app-logo" src="/images/logo.png" mode="aspectFit"></image>
+      <text class="app-name">You and Me</text>
+      <text class="app-slogan">情侣电子流审批小程序</text>
+    </view>
+
+    <!-- 登录按钮 -->
+    <view class="login-section">
+      <t-button 
+        wx:if="{{!isLoggedIn}}"
+        theme="light" 
+        size="large" 
+        block
+        bind:tap="onGetUserProfile"
+        class="login-btn auth-btn"
+      >
+        <view class="btn-content">
+          <t-icon name="user" size="36rpx" />
+          <text class="btn-text">微信授权登录</text>
+        </view>
+      </t-button>
+
+      <t-button 
+        wx:else
+        theme="light" 
+        size="large" 
+        block
+        bind:tap="onEnterHome"
+        class="login-btn enter-btn"
+      >
+        进入首页
+      </t-button>
+    </view>
+
+    <!-- 用户信息展示 -->
+    <view wx:if="{{isLoggedIn}}" class="user-info-section">
+      <view class="user-card">
+        <image class="user-avatar" src="{{userInfo.avatarUrl}}" mode="aspectFill"></image>
+        <view class="user-text">
+          <text class="user-name">{{userInfo.nickName}}</text>
+          <text class="user-tip">登录成功</text>
+        </view>
+      </view>
+
+      <!-- 伴侣状态 -->
+      <view class="partner-status">
+        <view wx:if="{{userInfo.relationStatus === 'single'}}" class="status-card single">
+          <t-icon name="info-circle" size="40rpx" color="#E37318" />
+          <text class="status-text">您还未绑定伴侣</text>
+          <t-button theme="warning" size="small" bind:tap="goToSettings" class="bind-btn">
+            去绑定
+          </t-button>
+        </view>
+
+        <view wx:elif="{{userInfo.relationStatus === 'paired'}}" class="status-card paired">
+          <t-icon name="check-circle" size="40rpx" color="#029B6C" />
+          <text class="status-text">已与 {{userInfo.partnerNickName}} 绑定</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 功能介绍 -->
+    <view class="features-section">
+      <text class="features-title">功能特点</text>
+      <view class="feature-item">
+        <t-icon name="check-circle" size="32rpx" color="#0052D9" />
+        <text class="feature-text">快速发起消费申请</text>
+      </view>
+      <view class="feature-item">
+        <t-icon name="check-circle" size="32rpx" color="#0052D9" />
+        <text class="feature-text">便捷的审批流程</text>
+      </view>
+      <view class="feature-item">
+        <t-icon name="check-circle" size="32rpx" color="#0052D9" />
+        <text class="feature-text">完整的统计分析</text>
+      </view>
+      <view class="feature-item">
+        <t-icon name="check-circle" size="32rpx" color="#0052D9" />
+        <text class="feature-text">伴侣关系管理</text>
+      </view>
+    </view>
+
+    <!-- 隐私说明 -->
+    <view class="privacy-section">
+      <text class="privacy-text">登录即表示同意《用户协议》和《隐私政策》</text>
+    </view>
+  </view>
+
+  <!-- Toast 提示 -->
+  <t-toast id="t-toast" />
+</view>

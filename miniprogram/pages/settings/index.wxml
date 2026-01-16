@@ -1,0 +1,150 @@
+<!-- 用户设置页面 -->
+<view class="page">
+  <!-- 用户信息卡片 -->
+  <view class="user-card">
+    <image class="avatar" src="{{userInfo.avatarUrl}}" mode="aspectFill"></image>
+    <view class="user-info">
+      <text class="nickname">{{userInfo.nickName}}</text>
+      <text class="openid">ID: {{userInfo._openid}}</text>
+    </view>
+  </view>
+
+  <!-- 伴侣关系 -->
+  <view class="section">
+    <text class="section-title">伴侣关系</text>
+    
+    <!-- 未绑定状态 -->
+    <view wx:if="{{userInfo.relationStatus === 'single'}}" class="relation-card">
+      <t-cell-group theme="card">
+        <t-cell 
+          title="绑定状态" 
+          note="未绑定"
+          left-icon="user"
+        >
+          <t-tag slot="note" theme="warning" variant="light">未绑定</t-tag>
+        </t-cell>
+      </t-cell-group>
+
+      <!-- Tab切换 -->
+      <t-tabs value="{{activeTab}}" bind:change="onTabChange" theme="line" class="tabs">
+        <t-tab-panel label="生成绑定码" value="generate" />
+        <t-tab-panel label="输入绑定码" value="input" />
+      </t-tabs>
+
+      <!-- 生成绑定码 -->
+      <view wx:if="{{activeTab === 'generate'}}" class="bind-section">
+        <view wx:if="{{bindCode}}" class="code-display">
+          <text class="code-label">您的绑定码</text>
+          <view class="code-value">{{bindCode}}</view>
+          <text class="code-tip">请将此绑定码分享给您的伴侣</text>
+          <text class="code-expire">有效期至：{{expireTimeText}}</text>
+          <t-button theme="primary" block bind:tap="onCopyCode" class="mt-3">
+            复制绑定码
+          </t-button>
+        </view>
+        
+        <t-button 
+          wx:else
+          theme="primary" 
+          block 
+          bind:tap="onGenerateCode"
+          loading="{{generating}}"
+        >
+          生成绑定码
+        </t-button>
+      </view>
+
+      <!-- 输入绑定码 -->
+      <view wx:if="{{activeTab === 'input'}}" class="bind-section">
+        <t-input
+          value="{{inputCode}}"
+          placeholder="请输入对方的绑定码"
+          maxlength="6"
+          bind:change="onInputCodeChange"
+          clearable
+        />
+        <t-button 
+          theme="primary" 
+          block 
+          bind:tap="onBindPartner"
+          disabled="{{inputCode.length !== 6}}"
+          loading="{{binding}}"
+          class="mt-3"
+        >
+          确认绑定
+        </t-button>
+      </view>
+    </view>
+
+    <!-- 已绑定状态 -->
+    <view wx:elif="{{userInfo.relationStatus === 'paired'}}" class="relation-card">
+      <t-cell-group theme="card">
+        <t-cell 
+          title="绑定状态"
+          left-icon="check-circle"
+        >
+          <t-tag slot="note" theme="success" variant="light">已绑定</t-tag>
+        </t-cell>
+        
+        <t-cell 
+          title="伴侣信息"
+          left-icon="user"
+        >
+          <view slot="note" class="partner-info">
+            <image class="partner-avatar" src="{{userInfo.partnerAvatarUrl}}" mode="aspectFill"></image>
+            <text class="partner-name">{{userInfo.partnerNickName}}</text>
+          </view>
+        </t-cell>
+      </t-cell-group>
+
+      <t-button 
+        theme="danger" 
+        variant="outline"
+        block 
+        bind:tap="onUnbind"
+        class="mt-3"
+      >
+        解除绑定
+      </t-button>
+    </view>
+  </view>
+
+  <!-- 其他设置 -->
+  <view class="section">
+    <text class="section-title">其他设置</text>
+    <t-cell-group theme="card">
+      <t-cell 
+        title="清除缓存" 
+        arrow
+        hover
+        bind:tap="onClearCache"
+      />
+      <t-cell 
+        title="关于我们" 
+        arrow
+        hover
+        bind:tap="onAbout"
+      />
+      <t-cell 
+        title="退出登录" 
+        arrow
+        hover
+        bind:tap="onLogout"
+      />
+    </t-cell-group>
+  </view>
+
+  <!-- Toast 提示 -->
+  <t-toast id="t-toast" />
+
+  <!-- Dialog 对话框 -->
+  <t-dialog
+    visible="{{showUnbindDialog}}"
+    title="解除绑定"
+    content="确定要解除与伴侣的绑定吗？解除后需要重新绑定才能使用小程序。"
+    confirm-btn="确认解除"
+    cancel-btn="取消"
+    bind:confirm="confirmUnbind"
+    bind:cancel="cancelUnbind"
+  />
+</view>
