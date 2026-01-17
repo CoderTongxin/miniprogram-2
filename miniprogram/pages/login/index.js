@@ -10,7 +10,16 @@ Page({
   },
 
   onLoad() {
+    wx.showLoading({
+      title: '加载中...',
+      mask: true
+    });
+    
     this.checkLoginStatus();
+    
+    setTimeout(() => {
+      wx.hideLoading();
+    }, 500);
   },
 
   // 检查登录状态
@@ -143,23 +152,72 @@ Page({
             this.goToSettings();
           } else {
             // 用户选择稍后，仍然可以进入首页
-            wx.switchTab({
-              url: '/pages/home/index'
+            wx.showLoading({
+              title: '加载中...',
+              mask: true
+            });
+            
+            wx.reLaunch({
+              url: '/pages/home/index',
+              success: () => {
+                setTimeout(() => {
+                  wx.hideLoading();
+                }, 300);
+              },
+              fail: (err) => {
+                console.error('跳转首页失败：', err);
+                wx.hideLoading();
+                wx.showToast({
+                  title: '跳转失败',
+                  icon: 'error'
+                });
+              }
             });
           }
         }
       });
     } else {
-      wx.switchTab({
-        url: '/pages/home/index'
+      wx.showLoading({
+        title: '加载中...',
+        mask: true
+      });
+      
+      wx.reLaunch({
+        url: '/pages/home/index',
+        success: () => {
+          setTimeout(() => {
+            wx.hideLoading();
+          }, 300);
+        },
+        fail: (err) => {
+          console.error('跳转首页失败：', err);
+          wx.hideLoading();
+          wx.showToast({
+            title: '跳转失败',
+            icon: 'error'
+          });
+        }
       });
     }
   },
 
   // 跳转到设置页面
   goToSettings() {
+    wx.showLoading({
+      title: '加载中...',
+      mask: true
+    });
+    
     wx.navigateTo({
-      url: '/pages/settings/index'
+      url: '/pages/settings/index',
+      success: () => {
+        setTimeout(() => {
+          wx.hideLoading();
+        }, 300);
+      },
+      fail: () => {
+        wx.hideLoading();
+      }
     });
   }
 });

@@ -16,7 +16,16 @@ Page({
   },
 
   onLoad() {
+    wx.showLoading({
+      title: '加载中...',
+      mask: true
+    });
+    
     this.loadUserInfo();
+    
+    setTimeout(() => {
+      wx.hideLoading();
+    }, 500);
   },
 
   onShow() {

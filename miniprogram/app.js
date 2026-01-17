@@ -1,6 +1,16 @@
 // app.js
 App({
   onLaunch: function () {
+    // 显示启动loading
+    wx.showLoading({
+      title: '加载中...',
+      mask: true
+    });
+    
+    // 延迟隐藏，等待云开发初始化完成
+    setTimeout(() => {
+      wx.hideLoading();
+    }, 1000);
     this.globalData = {
       // env 参数说明：
       //   env 参数决定接下来小程序发起的云开发调用（wx.cloud.xxx）会默认请求到哪个云环境的资源

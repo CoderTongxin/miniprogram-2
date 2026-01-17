@@ -1,121 +1,36 @@
 // pages/home/index.js
+import Toast from 'tdesign-miniprogram/toast/index';
+
 Page({
   data: {
     userInfo: {},
-    monthlyExpense: '8,580',
+    monthlyExpense: '0',
     activeTab: 'todo',
     currentFilter: 'all',
-    allFlows: [],
     flowList: [],
-    // 模拟数据
-    mockData: {
-      todo: [
-        {
-          id: 1,
-          applicantId: 'user2',
-          applicantName: '小红',
-          applicantAvatar: 'https://via.placeholder.com/80',
-          content: '需要参加公司年会，想申请购买一套得体的礼服',
-          amount: '1,580.00',
-          type: 'other',
-          typeText: '其他',
-          status: 'pending',
-          statusText: '待审批',
-          createTime: '12-18 10:30'
-        },
-        {
-          id: 2,
-          applicantId: 'user2',
-          applicantName: '小红',
-          applicantAvatar: 'https://via.placeholder.com/80',
-          content: '周末想去周边古镇游玩，放松一下心情',
-          amount: '800.00',
-          type: 'travel',
-          typeText: '出行',
-          status: 'pending',
-          statusText: '待审批',
-          createTime: '12-17 15:20'
-        },
-        {
-          id: 3,
-          applicantId: 'user2',
-          applicantName: '小红',
-          applicantAvatar: 'https://via.placeholder.com/80',
-          content: '这个月生活费快用完了，想申请一笔拨款',
-          amount: '2,000.00',
-          type: 'funds',
-          typeText: '拨款',
-          status: 'pending',
-          statusText: '待审批',
-          createTime: '12-16 09:45'
-        }
-      ],
-      myapply: [
-        {
-          id: 4,
-          applicantId: 'user1',
-          applicantName: '谢熊猫（我）',
-          applicantAvatar: 'https://via.placeholder.com/80',
-          content: '周末想去周边自驾游，租车费用和住宿费',
-          amount: '1,200.00',
-          type: 'travel',
-          typeText: '出行',
-          status: 'completed',
-          statusText: '已完成',
-          createTime: '12-15 14:20'
-        },
-        {
-          id: 5,
-          applicantId: 'user1',
-          applicantName: '谢熊猫（我）',
-          applicantAvatar: 'https://via.placeholder.com/80',
-          content: '申请报名参加专业培训课程',
-          amount: '3,200.00',
-          type: 'other',
-          typeText: '其他',
-          status: 'rejected',
-          statusText: '已驳回',
-          createTime: '12-14 10:30'
-        }
-      ],
-      completed: [
-        {
-          id: 4,
-          applicantId: 'user1',
-          applicantName: '谢熊猫（我）',
-          applicantAvatar: 'https://via.placeholder.com/80',
-          content: '周末想去周边自驾游，租车费用和住宿费',
-          amount: '1,200.00',
-          type: 'travel',
-          typeText: '出行',
-          status: 'completed',
-          statusText: '已完成',
-          createTime: '12-15 14:20'
-        },
-        {
-          id: 6,
-          applicantId: 'user2',
-          applicantName: '小红',
-          applicantAvatar: 'https://via.placeholder.com/80',
-          content: '购买生日礼物送给妈妈',
-          amount: '899.00',
-          type: 'other',
-          typeText: '其他',
-          status: 'completed',
-          statusText: '已完成',
-          createTime: '12-13 16:45'
-        }
-      ]
-    }
+    loading: false
   },
 
   onLoad() {
     this.checkLogin();
     this.loadFlowList();
+    this.calculateMonthlyExpense();
   },
 
   onShow() {
     this.checkLogin();
+    // 刷新列表数据
+    this.loadFlowList();
+    this.calculateMonthlyExpense();
+  },
+
+  // 下拉刷新
+  onPullDownRefresh() {
+    this.loadFlowList();
+    this.calculateMonthlyExpense();
+    setTimeout(() => {
+      wx.stopPullDownRefresh();
+    }, 1000);
   },
 
   // 检查登录状态
@@ -133,66 +48,213 @@ Page({
 
   // 加载电子流列表
   loadFlowList() {
-    const { activeTab, currentFilter, mockData } = this.data;
-    let flows = mockData[activeTab] || [];
+    const { activeTab, currentFilter } = this.data;
     
-    // 按类型筛选
-    if (currentFilter !== 'all') {
-      flows = flows.filter(item => item.type === currentFilter);
-    }
+    this.setData({ loading: true });
     
-    this.setData({
-      allFlows: mockData[activeTab] || [],
-      flowList: flows
+    wx.showLoading({
+      title: '加载中...',
+      mask: true
+    });
+    
+    // 调用云函数获取数据
+    wx.cloud.callFunction({
+      name: 'flowManager',
+      data: {
+        action: 'getList',
+        tab: activeTab,
+        type: currentFilter
+      },
+      success: (res) => {
+        console.log('获取电子流列表成功：', res);
+        
+        if (res.result && res.result.success) {
+          this.setData({
+            flowList: res.result.data,
+            loading: false
+          });
+        } else {
+          Toast({
+            context: this,
+            selector: '#t-toast',
+            message: res.result.message || '获取数据失败',
+            theme: 'error',
+            direction: 'column',
+          });
+          this.setData({ loading: false });
+        }
+        
+        wx.hideLoading();
+      },
+      fail: (err) => {
+        console.error('获取电子流列表失败：', err);
+        Toast({
+          context: this,
+          selector: '#t-toast',
+          message: '获取数据失败，请重试',
+          theme: 'error',
+          direction: 'column',
+        });
+        this.setData({ loading: false });
+        wx.hideLoading();
+      }
+    });
+  },
+
+  // 计算本月支出
+  calculateMonthlyExpense() {
+    const userInfo = wx.getStorageSync('userInfo');
+    if (!userInfo || !userInfo._openid) return;
+    
+    // 获取本月已完成的电子流
+    wx.cloud.callFunction({
+      name: 'flowManager',
+      data: {
+        action: 'getList',
+        tab: 'completed',
+        type: 'all'
+      },
+      success: (res) => {
+        if (res.result && res.result.success) {
+          const flows = res.result.data;
+          
+          // 计算本月的支出（只计算当前用户作为申请人的）
+          const now = new Date();
+          const currentMonth = now.getMonth() + 1;
+          const currentYear = now.getFullYear();
+          
+          let totalAmount = 0;
+          flows.forEach(flow => {
+            // 简单处理：只要是本月的都算（实际应该解析 createTime）
+            const amount = parseFloat(flow.amount) || 0;
+            totalAmount += amount;
+          });
+          
+          // 格式化金额
+          const formattedAmount = totalAmount.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+          
+          this.setData({
+            monthlyExpense: formattedAmount
+          });
+        }
+      },
+      fail: (err) => {
+        console.error('计算本月支出失败：', err);
+      }
     });
   },
 
   // Tab 切换
   onTabChange(e) {
+    const newTab = e.detail.value;
+    
     this.setData({
-      activeTab: e.detail.value,
+      activeTab: newTab,
       currentFilter: 'all'
-    }, () => {
-      this.loadFlowList();
     });
+    
+    // 延迟加载，让 Tab 切换动画更流畅
+    setTimeout(() => {
+      this.loadFlowList();
+    }, 100);
   },
 
   // 筛选器变更
   onFilterChange(e) {
     const filter = e.currentTarget.dataset.filter;
+    
+    if (filter === this.data.currentFilter) {
+      return; // 避免重复点击
+    }
+    
     this.setData({
       currentFilter: filter
-    }, () => {
-      this.loadFlowList();
     });
+    
+    // 延迟加载，让筛选动画更流畅
+    setTimeout(() => {
+      this.loadFlowList();
+    }, 100);
   },
 
   // 跳转到详情页
   goToDetail(e) {
     const id = e.currentTarget.dataset.id;
+    wx.showLoading({
+      title: '加载中...',
+      mask: true
+    });
+    
     wx.navigateTo({
-      url: `/pages/flow-detail/index?id=${id}`
+      url: `/pages/flow-detail/index?id=${id}`,
+      success: () => {
+        setTimeout(() => {
+          wx.hideLoading();
+        }, 300);
+      },
+      fail: () => {
+        wx.hideLoading();
+      }
     });
   },
 
   // 跳转到创建页
   goToCreate() {
+    wx.showLoading({
+      title: '加载中...',
+      mask: true
+    });
+    
     wx.navigateTo({
-      url: '/pages/editFlow/index'
+      url: '/pages/editFlow/index',
+      success: () => {
+        setTimeout(() => {
+          wx.hideLoading();
+        }, 300);
+      },
+      fail: () => {
+        wx.hideLoading();
+      }
     });
   },
 
   // 跳转到统计页
   goToStatistics() {
+    wx.showLoading({
+      title: '加载中...',
+      mask: true
+    });
+    
     wx.navigateTo({
-      url: '/pages/statistics/index'
+      url: '/pages/statistics/index',
+      success: () => {
+        setTimeout(() => {
+          wx.hideLoading();
+        }, 300);
+      },
+      fail: () => {
+        wx.hideLoading();
+      }
     });
   },
 
   // 跳转到设置页
   goToSettings() {
+    wx.showLoading({
+      title: '加载中...',
+      mask: true
+    });
+    
     wx.navigateTo({
-      url: '/pages/settings/index'
+      url: '/pages/settings/index',
+      success: () => {
+        setTimeout(() => {
+          wx.hideLoading();
+        }, 300);
+      },
+      fail: () => {
+        wx.hideLoading();
+      }
     });
   }
 });

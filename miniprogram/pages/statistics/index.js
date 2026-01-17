@@ -61,7 +61,17 @@ Page({
   },
 
   onLoad() {
+    wx.showLoading({
+      title: '加载中...',
+      mask: true
+    });
+    
     this.updatePeriodText();
+    this.loadStatistics();
+    
+    setTimeout(() => {
+      wx.hideLoading();
+    }, 500);
   },
 
   // 更新时间范围文本

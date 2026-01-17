@@ -72,11 +72,20 @@ Page({
   },
 
   onLoad(options) {
+    wx.showLoading({
+      title: '加载中...',
+      mask: true
+    });
+    
     const flowId = options.id;
     if (flowId) {
       this.setData({ flowId });
       this.loadFlowData(flowId);
     }
+    
+    setTimeout(() => {
+      wx.hideLoading();
+    }, 500);
   },
 
   // 加载电子流数据

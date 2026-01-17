@@ -70,4 +70,7 @@
   <view class="fab-button" bindtap="goToCreate">
     <t-icon name="add" size="48rpx" color="#FFFFFF" />
   </view>
+
+  <!-- Toast 提示 -->
+  <t-toast id="t-toast" />
 </view>

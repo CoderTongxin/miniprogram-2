@@ -19,6 +19,11 @@ Page({
   },
 
   onLoad(options) {
+    wx.showLoading({
+      title: '加载中...',
+      mask: true
+    });
+    
     // 如果有 id 参数，表示是编辑模式
     if (options.id) {
       this.setData({
@@ -28,6 +33,10 @@ Page({
       // 加载电子流数据
       this.loadFlowData(options.id);
     }
+    
+    setTimeout(() => {
+      wx.hideLoading();
+    }, 500);
   },
 
   // 加载电子流数据（编辑模式）
