@@ -17,6 +17,7 @@
         <text class="user-time">{{flowData.createTime}}</text>
       </view>
       <view class="status-badge">
+        <!-- 状态标签：浅色透明背景 -->
         <t-tag 
           theme="{{flowData.status === 'pending' ? 'warning' : flowData.status === 'completed' ? 'success' : 'danger'}}" 
           variant="light"
@@ -37,9 +38,10 @@
     <!-- 类型 -->
     <view class="info-row">
       <text class="info-label">申请类型</text>
+      <!-- 类型标签：纯色背景 -->
       <t-tag 
-        theme="{{flowData.type === 'funds' ? 'primary' : flowData.type === 'travel' ? 'warning' : 'default'}}" 
-        variant="light"
+        theme="{{flowData.type === 'other' ? 'default' : 'primary'}}"
+        class="type-tag type-tag-{{flowData.type}}"
       >
         {{flowData.typeText}}
       </t-tag>

@@ -269,3 +269,25 @@
 .btn-approve {
   flex: 1;
 }
+
+/* 自定义类型标签颜色 */
+/* 拨款：深绿色（比审批通过的 #029B6C 更深） */
+.type-tag-funds {
+  background-color: #00875A !important;
+  border-color: #00875A !important;
+  color: #FFFFFF !important;
+}
+
+/* 出行：浅蓝色 */
+.type-tag-travel {
+  background-color: #5CADFF !important;
+  border-color: #5CADFF !important;
+  color: #FFFFFF !important;
+}
+
+/* 其他：保持默认灰色 */
+.type-tag-other {
+  background-color: #DCDCDC !important;
+  border-color: #DCDCDC !important;
+  color: #333333 !important;
+}

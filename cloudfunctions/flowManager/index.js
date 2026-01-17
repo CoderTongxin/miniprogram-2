@@ -30,11 +30,13 @@ exports.main = async (event, context) => {
   const openid = wxContext.OPENID
   
   const {
-    action,      // 操作类型: getList, create, update, delete, getDetail
-    flowId,      // 电子流ID
-    tab,         // Tab类型: todo, myapply, completed
-    type,        // 类型筛选: all, funds, travel, other
-    flowData     // 电子流数据（创建/更新时使用）
+    action,         // 操作类型: getList, create, update, delete, getDetail, approve, reject
+    flowId,         // 电子流ID
+    tab,            // Tab类型: todo, myapply, completed
+    type,           // 类型筛选: all, funds, travel, other
+    flowData,       // 电子流数据（创建/更新时使用）
+    rejectReason,   // 驳回原因
+    approveComment  // 审批备注
   } = event
 
   try {
@@ -53,6 +55,12 @@ exports.main = async (event, context) => {
       
       case 'getDetail':
         return await getFlowDetail(openid, flowId)
+      
+      case 'approve':
+        return await approveFlow(openid, flowId, approveComment)
+      
+      case 'reject':
+        return await rejectFlow(openid, flowId, rejectReason)
       
       default:
         return {
@@ -399,5 +407,117 @@ async function getFlowDetail(openid, flowId) {
   return {
     success: true,
     data: formattedFlow
+  }
+}
+
+// 通过电子流
+async function approveFlow(openid, flowId, approveComment = '') {
+  const flowsCollection = db.collection('flows')
+  
+  // 获取电子流信息
+  const flowResult = await flowsCollection.doc(flowId).get()
+  
+  if (!flowResult.data) {
+    return {
+      success: false,
+      message: '电子流不存在'
+    }
+  }
+  
+  const flow = flowResult.data
+  
+  // 检查权限（必须是审批人）
+  if (flow.approverId !== openid) {
+    return {
+      success: false,
+      message: '无权限审批'
+    }
+  }
+  
+  // 检查状态（只能审批待审批状态的）
+  if (flow.status !== 'pending') {
+    return {
+      success: false,
+      message: '该申请已被处理'
+    }
+  }
+  
+  const now = new Date()
+  
+  // 更新电子流状态
+  await flowsCollection.doc(flowId).update({
+    data: {
+      status: 'completed',
+      approveTime: now,
+      approveComment: approveComment || '',
+      updateTime: now
+    }
+  })
+  
+  // TODO: 可以在这里添加消息通知功能，通知申请人
+  
+  return {
+    success: true,
+    message: '审批通过'
+  }
+}
+
+// 驳回电子流
+async function rejectFlow(openid, flowId, rejectReason) {
+  const flowsCollection = db.collection('flows')
+  
+  // 验证驳回原因
+  if (!rejectReason || !rejectReason.trim()) {
+    return {
+      success: false,
+      message: '请填写驳回原因'
+    }
+  }
+  
+  // 获取电子流信息
+  const flowResult = await flowsCollection.doc(flowId).get()
+  
+  if (!flowResult.data) {
+    return {
+      success: false,
+      message: '电子流不存在'
+    }
+  }
+  
+  const flow = flowResult.data
+  
+  // 检查权限（必须是审批人）
+  if (flow.approverId !== openid) {
+    return {
+      success: false,
+      message: '无权限审批'
+    }
+  }
+  
+  // 检查状态（只能审批待审批状态的）
+  if (flow.status !== 'pending') {
+    return {
+      success: false,
+      message: '该申请已被处理'
+    }
+  }
+  
+  const now = new Date()
+  
+  // 更新电子流状态
+  await flowsCollection.doc(flowId).update({
+    data: {
+      status: 'rejected',
+      approveTime: now,
+      rejectReason: rejectReason.trim(),
+      updateTime: now
+    }
+  })
+  
+  // TODO: 可以在这里添加消息通知功能，通知申请人
+  
+  return {
+    success: true,
+    message: '已驳回申请'
   }
 }

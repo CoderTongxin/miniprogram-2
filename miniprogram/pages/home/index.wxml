@@ -46,10 +46,16 @@
             <text class="flow-time">{{item.createTime}}</text>
           </view>
           <view class="flow-badges">
+            <!-- 状态标签：浅色透明背景 -->
             <t-tag theme="{{item.status === 'pending' ? 'warning' : item.status === 'completed' ? 'success' : 'danger'}}" size="small" variant="light">
               {{item.statusText}}
             </t-tag>
-            <t-tag theme="{{item.type === 'funds' ? 'primary' : item.type === 'travel' ? 'warning' : 'default'}}" size="small" variant="light">
+            <!-- 类型标签：纯色背景 -->
+            <t-tag 
+              theme="{{item.type === 'other' ? 'default' : 'primary'}}" 
+              size="small"
+              class="type-tag type-tag-{{item.type}}"
+            >
               {{item.typeText}}
             </t-tag>
           </view>
