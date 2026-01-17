@@ -16,12 +16,34 @@
   line-height: 1.5;
 }
 
+/* 申请内容输入区 */
+.content-input {
+  padding: 24rpx 32rpx;
+  background: #FFFFFF;
+}
+
+.content-input t-textarea {
+  width: 100%;
+  min-height: 200rpx;
+}
+
+/* 申请金额输入区 */
+.amount-input {
+  padding: 16rpx 32rpx;
+  background: #FFFFFF;
+}
+
+.amount-input t-input {
+  text-align: right;
+}
+
 /* 类型选择网格 */
 .type-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 24rpx;
   padding: 24rpx 32rpx;
+  background: #FFFFFF;
 }
 
 .type-item {
@@ -33,11 +55,12 @@
   flex-direction: column;
   align-items: center;
   transition: all 0.3s;
+  background: #FFFFFF;
 }
 
 .type-item.active {
   border-color: #0052D9;
-  background: #E0EDFF;
+  background: #F0F5FF;
 }
 
 .type-icon {

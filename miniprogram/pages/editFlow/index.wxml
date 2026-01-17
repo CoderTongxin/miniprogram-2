@@ -3,9 +3,9 @@
   <view class="form-container">
     <!-- 申请内容 -->
     <t-cell-group theme="card">
-      <t-cell title="申请内容" required>
+      <t-cell title="申请内容" required />
+      <view class="content-input">
         <t-textarea
-          slot="note"
           value="{{formData.content}}"
           placeholder="请详细描述您的申请内容..."
           maxlength="500"
@@ -13,22 +13,23 @@
           bind:change="onContentChange"
           auto-height
         />
-      </t-cell>
+      </view>
       <view class="tip-text">建议说明申请的原因和用途，便于审批人了解</view>
     </t-cell-group>
 
     <!-- 申请金额 -->
     <t-cell-group theme="card">
-      <t-cell title="申请金额" required="{{!isOtherType}}">
+      <t-cell title="申请金额" required="{{!isOtherType}}" />
+      <view class="amount-input">
         <t-input
-          slot="note"
           type="digit"
           value="{{formData.amount}}"
           placeholder="0.00"
           prefix-icon="money-circle"
           bind:change="onAmountChange"
+          align="left"
         />
-      </t-cell>
+      </view>
       <view class="tip-text" wx:if="{{isOtherType}}" style="color: #E37318;">
         选择"其他"类型时，金额为选填项
       </view>
