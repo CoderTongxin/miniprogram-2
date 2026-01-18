@@ -177,7 +177,7 @@ wx.cloud.callFunction({
 /pages/settings/index      // 设置页（伴侣绑定）
 /pages/editFlow/index      // 创建电子流
 /pages/flow-detail/index   // 电子流详情
-/pages/statistics/index    // 统计分析
+/pages/statistics/index    // 数据统计
 ```
 
 ## 安全建议

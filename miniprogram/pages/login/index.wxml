@@ -76,7 +76,7 @@
       </view>
       <view class="feature-item">
         <t-icon name="check-circle" size="32rpx" color="#0052D9" />
-        <text class="feature-text">完整的统计分析</text>
+        <text class="feature-text">完整的数据统计</text>
       </view>
       <view class="feature-item">
         <t-icon name="check-circle" size="32rpx" color="#0052D9" />

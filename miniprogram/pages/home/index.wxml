@@ -11,7 +11,7 @@
         </view>
       </view>
       <view class="user-right" bindtap="goToStatistics">
-        <text class="stat-label">本月支出 →</text>
+        <text class="stat-label"> 数据统计 →</text>
         <text class="stat-amount">¥{{monthlyExpense}}</text>
       </view>
     </view>

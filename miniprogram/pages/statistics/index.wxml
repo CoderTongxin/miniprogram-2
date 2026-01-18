@@ -1,4 +1,4 @@
-<!-- 统计分析 -->
+<!-- 数据统计 -->
 <view class="page">
   <!-- 头部统计卡片 -->
   <view class="header-card">
@@ -101,9 +101,9 @@
         <text class="trend-period">{{item.period}}</text>
         <view class="trend-right">
           <text class="trend-amount">¥{{item.amount}}</text>
-          <text class="trend-change {{item.change >= 0 ? 'up' : 'down'}}">
-            {{item.change >= 0 ? '+' : ''}}{{item.change}}%
-          </text>
+          <view class="trend-change {{item.change >= 0 ? 'up' : 'down'}}">
+            <text>{{item.change >= 0 ? '+' : ''}}{{item.change}}%</text>
+          </view>
         </view>
       </view>
     </view>
@@ -132,4 +132,7 @@
       </view>
     </view>
   </view>
+
+  <!-- Toast 提示 -->
+  <t-toast id="t-toast" />
 </view>
