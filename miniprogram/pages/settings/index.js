@@ -197,6 +197,7 @@ Page({
 
   // 刷新用户信息
   refreshUserInfo() {
+    const fromBinding = this.data.binding; // 记录是否来自绑定操作
     wx.showLoading({ title: '加载中...' });
     
     wx.cloud.callFunction({
@@ -223,6 +224,23 @@ Page({
             inputCode: '',
             binding: false
           });
+
+          // 如果是绑定操作且绑定成功，跳转到首页
+          if (fromBinding && userData.relationStatus === 'paired') {
+            Toast({
+              context: this,
+              selector: '#t-toast',
+              message: '绑定成功，即将跳转首页',
+              theme: 'success',
+              direction: 'column',
+            });
+
+            setTimeout(() => {
+              wx.reLaunch({
+                url: '/pages/home/index'
+              });
+            }, 1500);
+          }
         }
       },
       fail: () => {
