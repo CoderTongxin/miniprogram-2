@@ -222,7 +222,7 @@
 
 .trend-change {
   font-size: 24rpx;
-  padding: 4rpx 16rpx;
+  padding: 10rpx;
   border-radius: 8rpx;
 }
 
