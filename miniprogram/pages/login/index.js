@@ -16,20 +16,52 @@ Page({
     });
     
     this.checkLoginStatus();
-    
-    setTimeout(() => {
-      wx.hideLoading();
-    }, 500);
   },
 
   // 检查登录状态
   checkLoginStatus() {
     const userInfo = wx.getStorageSync('userInfo');
+    
     if (userInfo && userInfo._openid) {
-      this.setData({
-        isLoggedIn: true,
-        userInfo: userInfo
-      });
+      // 已登录，检查是否已绑定伴侣
+      if (userInfo.relationStatus === 'paired' && userInfo.partnerId) {
+        // 已登录且已绑定伴侣，自动跳转到首页
+        console.log('用户已登录且已绑定伴侣，自动跳转首页');
+        
+        // 保存到全局数据
+        app.globalData.userInfo = userInfo;
+        app.globalData.partnerId = userInfo.partnerId;
+        
+        // 延迟跳转，让用户看到加载动画
+        setTimeout(() => {
+          wx.hideLoading();
+          wx.reLaunch({
+            url: '/pages/home/index',
+            success: () => {
+              console.log('自动跳转首页成功');
+            },
+            fail: (err) => {
+              console.error('自动跳转首页失败：', err);
+              wx.hideLoading();
+            }
+          });
+        }, 300);
+      } else {
+        // 已登录但未绑定伴侣，显示登录页面
+        this.setData({
+          isLoggedIn: true,
+          userInfo: userInfo
+        });
+        
+        setTimeout(() => {
+          wx.hideLoading();
+        }, 500);
+      }
+    } else {
+      // 未登录，显示登录页面
+      setTimeout(() => {
+        wx.hideLoading();
+      }, 500);
     }
   },
 
@@ -106,11 +138,11 @@ Page({
             direction: 'column',
           });
 
-          // 如果已绑定伴侣，3秒后自动跳转首页
+          // 如果已绑定伴侣，1秒后自动跳转首页
           if (userData.relationStatus === 'paired') {
             setTimeout(() => {
               this.onEnterHome();
-            }, 3000);
+            }, 1000);
           }
         } else {
           Toast({
