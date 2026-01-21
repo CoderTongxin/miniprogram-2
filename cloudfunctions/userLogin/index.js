@@ -19,7 +19,7 @@ exports.main = async (event, context) => {
   const openid = wxContext.OPENID
   
   const { 
-    action,        // 操作类型: login, updateInfo, generateCode, bindPartner
+    action,        // 操作类型: login, updateInfo, generateCode, bindPartner, unbind
     userInfo,      // 用户信息
     bindCode       // 绑定码（绑定伴侣时使用）
   } = event
@@ -37,6 +37,9 @@ exports.main = async (event, context) => {
       
       case 'bindPartner':
         return await handleBindPartner(openid, bindCode)
+      
+      case 'unbind':
+        return await handleUnbind(openid)
       
       default:
         return {
@@ -274,6 +277,86 @@ async function handleBindPartner(openid, bindCode) {
         nickName: partner.nickName,
         avatarUrl: partner.avatarUrl
       }
+    }
+  }
+}
+
+// 解除绑定
+async function handleUnbind(openid) {
+  const usersCollection = db.collection('users')
+  
+  // 获取当前用户信息
+  const currentUserResult = await usersCollection.where({
+    _openid: openid
+  }).get()
+  
+  if (currentUserResult.data.length === 0) {
+    return {
+      success: false,
+      message: '用户不存在'
+    }
+  }
+  
+  const currentUser = currentUserResult.data[0]
+  
+  // 检查是否有伴侣
+  if (currentUser.relationStatus !== 'paired' || !currentUser.partnerId) {
+    return {
+      success: false,
+      message: '当前没有绑定伴侣'
+    }
+  }
+  
+  const partnerId = currentUser.partnerId
+  const now = new Date()
+  
+  // 查找伴侣
+  const partnerResult = await usersCollection.where({
+    _openid: partnerId
+  }).get()
+  
+  // 更新双方的关系状态
+  const updatePromises = [
+    // 更新当前用户
+    usersCollection.doc(currentUser._id).update({
+      data: {
+        partnerId: '',
+        partnerNickName: '',
+        partnerAvatarUrl: '',
+        relationStatus: 'single',
+        updateTime: now
+      }
+    })
+  ]
+  
+  // 如果找到了伴侣，也更新对方的状态
+  if (partnerResult.data.length > 0) {
+    const partner = partnerResult.data[0]
+    updatePromises.push(
+      usersCollection.doc(partner._id).update({
+        data: {
+          partnerId: '',
+          partnerNickName: '',
+          partnerAvatarUrl: '',
+          relationStatus: 'single',
+          updateTime: now
+        }
+      })
+    )
+  }
+  
+  await Promise.all(updatePromises)
+  
+  // 获取更新后的用户信息
+  const updatedUserResult = await usersCollection.where({
+    _openid: openid
+  }).get()
+  
+  return {
+    success: true,
+    message: '解除绑定成功',
+    data: {
+      userInfo: updatedUserResult.data[0]
     }
   }
 }

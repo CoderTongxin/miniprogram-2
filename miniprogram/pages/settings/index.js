@@ -30,6 +30,8 @@ Page({
 
   onShow() {
     this.loadUserInfo();
+    // 检查是否被其他用户绑定
+    this.checkBindStatusFromCloud();
   },
 
   // 加载用户信息
@@ -42,6 +44,63 @@ Page({
         url: '/pages/login/index'
       });
     }
+  },
+
+  // 从云端检查绑定状态（检测被动绑定）
+  checkBindStatusFromCloud() {
+    const currentUserInfo = wx.getStorageSync('userInfo');
+    if (!currentUserInfo) return;
+    
+    const wasNotBound = currentUserInfo.relationStatus !== 'paired';
+    
+    wx.cloud.callFunction({
+      name: 'userLogin',
+      data: {
+        action: 'login',
+        userInfo: currentUserInfo
+      },
+      success: (res) => {
+        if (res.result && res.result.success) {
+          const latestUserInfo = res.result.data.userInfo;
+          
+          // 更新本地用户信息
+          wx.setStorageSync('userInfo', latestUserInfo);
+          app.globalData.userInfo = latestUserInfo;
+          
+          if (latestUserInfo.partnerId) {
+            app.globalData.partnerId = latestUserInfo.partnerId;
+          }
+          
+          // 检测到被其他用户绑定（从未绑定变为已绑定）
+          if (wasNotBound && latestUserInfo.relationStatus === 'paired' && latestUserInfo.partnerId) {
+            console.log('检测到被其他用户绑定');
+            
+            // 更新页面状态
+            this.setData({ userInfo: latestUserInfo });
+            
+            // 显示提示并跳转
+            wx.showModal({
+              title: '绑定成功',
+              content: `已经被 ${latestUserInfo.partnerNickName} 绑定为情侣，现在系统会自动为您跳转到首页`,
+              showCancel: false,
+              success: () => {
+                setTimeout(() => {
+                  wx.reLaunch({
+                    url: '/pages/home/index'
+                  });
+                }, 500);
+              }
+            });
+          } else {
+            // 正常更新页面数据
+            this.setData({ userInfo: latestUserInfo });
+          }
+        }
+      },
+      fail: (err) => {
+        console.error('检查绑定状态失败：', err);
+      }
+    });
   },
 
   // Tab切换
@@ -158,18 +217,18 @@ Page({
         console.log('绑定伴侣返回：', res);
         
         if (res.result && res.result.success) {
-          Toast({
-            context: this,
-            selector: '#t-toast',
-            message: '绑定成功',
-            theme: 'success',
-            direction: 'column',
+          const partnerName = res.result.data.partner.nickName;
+          
+          // 显示成功提示
+          wx.showModal({
+            title: '绑定成功',
+            content: `已成功与 ${partnerName} 绑定为情侣，现在系统会自动为您跳转到首页`,
+            showCancel: false,
+            success: () => {
+              // 刷新用户信息并跳转
+              this.refreshUserInfo(true);
+            }
           });
-
-          // 刷新用户信息
-          setTimeout(() => {
-            this.refreshUserInfo();
-          }, 1500);
         } else {
           this.setData({ binding: false });
           Toast({
@@ -196,8 +255,7 @@ Page({
   },
 
   // 刷新用户信息
-  refreshUserInfo() {
-    const fromBinding = this.data.binding; // 记录是否来自绑定操作
+  refreshUserInfo(shouldJumpToHome = false) {
     wx.showLoading({ title: '加载中...' });
     
     wx.cloud.callFunction({
@@ -225,21 +283,13 @@ Page({
             binding: false
           });
 
-          // 如果是绑定操作且绑定成功，跳转到首页
-          if (fromBinding && userData.relationStatus === 'paired') {
-            Toast({
-              context: this,
-              selector: '#t-toast',
-              message: '绑定成功，即将跳转首页',
-              theme: 'success',
-              direction: 'column',
-            });
-
+          // 如果需要跳转到首页
+          if (shouldJumpToHome && userData.relationStatus === 'paired') {
             setTimeout(() => {
               wx.reLaunch({
                 url: '/pages/home/index'
               });
-            }, 1500);
+            }, 800);
           }
         }
       },
@@ -258,12 +308,64 @@ Page({
   confirmUnbind() {
     this.setData({ showUnbindDialog: false });
     
-    Toast({
-      context: this,
-      selector: '#t-toast',
-      message: '解除绑定功能待开发',
-      theme: 'warning',
-      direction: 'column',
+    wx.showLoading({
+      title: '解除绑定中...',
+      mask: true
+    });
+
+    // 调用云函数解除绑定
+    wx.cloud.callFunction({
+      name: 'userLogin',
+      data: {
+        action: 'unbind'
+      },
+      success: (res) => {
+        console.log('解除绑定返回：', res);
+        wx.hideLoading();
+        
+        if (res.result && res.result.success) {
+          // 更新本地用户信息
+          const userData = res.result.data.userInfo;
+          wx.setStorageSync('userInfo', userData);
+          app.globalData.userInfo = userData;
+          
+          // 清除伴侣相关数据
+          app.globalData.partnerId = null;
+          wx.removeStorageSync('partnerId');
+          
+          // 更新页面状态
+          this.setData({
+            userInfo: userData
+          });
+
+          Toast({
+            context: this,
+            selector: '#t-toast',
+            message: '解除绑定成功',
+            theme: 'success',
+            direction: 'column',
+          });
+        } else {
+          Toast({
+            context: this,
+            selector: '#t-toast',
+            message: res.result.message || '解除绑定失败',
+            theme: 'error',
+            direction: 'column',
+          });
+        }
+      },
+      fail: (err) => {
+        console.error('解除绑定失败：', err);
+        wx.hideLoading();
+        Toast({
+          context: this,
+          selector: '#t-toast',
+          message: '解除绑定失败，请重试',
+          theme: 'error',
+          direction: 'column',
+        });
+      }
     });
   },
 

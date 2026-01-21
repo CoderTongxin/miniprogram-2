@@ -1,115 +1,114 @@
-/* pages/editFlow/index.wxss */
-.page {
-  min-height: 100vh;
-  background: #F5F5F5;
+/* pages/editFlow/index.wxss - 设计系统重构版 */
+
+.form-container {
   padding-bottom: 140rpx;
 }
 
-.form-container {
-  padding: 24rpx;
+/* 文本域 */
+.ds-textarea {
+  min-height: 240rpx;
+  background: linear-gradient(180deg, #FFF1F6 0%, #FFF7FA 100%);
+  border-radius: 28rpx;
+  padding: 24rpx 28rpx;
+  font-size: 30rpx;
+  color: #863B4E;
+  border: 2rpx solid rgba(255,255,255,0.8);
+  box-shadow: inset 0 1rpx 2rpx rgba(255,255,255,0.8), 0 4rpx 12rpx rgba(255,200,220,0.15);
+  line-height: 1.6;
 }
 
-.tip-text {
-  font-size: 24rpx;
-  color: #999999;
-  padding: 16rpx 32rpx;
-  line-height: 1.5;
+.ds-textarea::placeholder {
+  color: rgba(134,59,78,0.35);
 }
 
-/* 申请内容输入区 */
-.content-input {
-  padding: 24rpx 32rpx;
-  background: #FFFFFF;
+/* 金额输入区 */
+.amount-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
 }
 
-.content-input t-textarea {
-  width: 100%;
-  min-height: 200rpx;
+.amount-prefix {
+  position: absolute;
+  left: 28rpx;
+  font-size: 36rpx;
+  font-weight: 800;
+  color: #F86585;
+  z-index: 1;
+  pointer-events: none;
 }
 
-/* 申请金额输入区 */
 .amount-input {
-  padding: 16rpx 32rpx;
-  background: #FFFFFF;
-}
-
-.amount-input t-input {
-  text-align: right;
+  width: 100%;
+  padding-left: 60rpx !important;
+  font-size: 36rpx !important;
+  font-weight: 800 !important;
+  color: #F86585 !important;
 }
 
 /* 类型选择网格 */
 .type-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 24rpx;
-  padding: 24rpx 32rpx;
-  background: #FFFFFF;
+  gap: 16rpx;
+  margin-top: 16rpx;
 }
 
 .type-item {
-  padding: 32rpx 24rpx;
-  border: 2rpx solid #E5E5E5;
-  border-radius: 12rpx;
+  padding: 32rpx 20rpx;
+  background: linear-gradient(180deg, #FFF1F6 0%, #FFF7FA 100%);
+  border: 3rpx solid rgba(251,122,151,0.15);
+  border-radius: 28rpx;
   text-align: center;
   display: flex;
   flex-direction: column;
   align-items: center;
-  transition: all 0.3s;
-  background: #FFFFFF;
+  transition: all 0.2s ease;
+  box-shadow: 0 6rpx 16rpx rgba(255,125,165,0.08);
 }
 
 .type-item.active {
-  border-color: #0052D9;
-  background: #F0F5FF;
+  border-color: #F86585;
+  background: linear-gradient(180deg, #FFE5EE 0%, #FFF1F6 100%);
+  box-shadow: 0 8rpx 20rpx rgba(255,125,165,0.25);
+  transform: translateY(-2rpx);
 }
 
 .type-icon {
-  font-size: 48rpx;
+  font-size: 56rpx;
   margin-bottom: 12rpx;
 }
 
 .type-name {
   font-size: 28rpx;
-  color: #333333;
+  color: rgba(134,59,78,0.60);
+  font-weight: 600;
 }
 
 .type-item.active .type-name {
-  color: #0052D9;
-  font-weight: 500;
+  color: #F86585;
+  font-weight: 800;
 }
 
-/* 审批人区域 */
-.approver-section {
-  display: flex;
-  align-items: center;
-  padding: 24rpx;
-  background: #F8FBFF;
-  border-radius: 12rpx;
+/* 审批人卡片 */
+.approver-card {
+  margin-top: 12rpx;
 }
 
 .approver-avatar {
   width: 80rpx;
   height: 80rpx;
   border-radius: 50%;
-  margin-right: 24rpx;
+  border: 2rpx solid rgba(255,255,255,0.9);
+  box-shadow: 0 4rpx 12rpx rgba(255,125,165,0.20);
   flex-shrink: 0;
 }
 
 .approver-info {
   display: flex;
   flex-direction: column;
-}
-
-.approver-name {
-  font-size: 30rpx;
-  font-weight: 500;
-  color: #333333;
-  margin-bottom: 8rpx;
-}
-
-.approver-role {
-  font-size: 24rpx;
-  color: #999999;
+  gap: 6rpx;
+  flex: 1;
 }
 
 /* 底部操作按钮 */
@@ -118,18 +117,22 @@
   bottom: 0;
   left: 0;
   right: 0;
-  background: #FFFFFF;
-  padding: 24rpx 32rpx;
+  background: rgba(255,255,255,0.95);
+  backdrop-filter: blur(20rpx);
+  padding: 20rpx 24rpx;
+  padding-bottom: calc(env(safe-area-inset-bottom));
   display: flex;
-  gap: 24rpx;
-  box-shadow: 0 -4rpx 16rpx rgba(0, 0, 0, 0.06);
+  gap: 16rpx;
+  box-shadow: 0 -8rpx 24rpx rgba(255,125,165,0.15);
   z-index: 100;
 }
 
 .btn-cancel {
   flex: 1;
+  height: 88rpx;
 }
 
 .btn-submit {
-  flex: 1;
+  flex: 2;
+  height: 88rpx;
 }

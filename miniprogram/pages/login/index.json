@@ -1,5 +1,10 @@
 {
-  "navigationBarTitleText": "登录",
+  "navigationBarTitleText": "准了么",
   "navigationStyle": "custom",
+  "navigationBarBackgroundColor": "#FCE6EC",
+  "navigationBarTextStyle": "black",
+  "backgroundColor": "#FCE6EC",
+  "backgroundTextStyle": "light",
+  "enablePullDownRefresh": false,
   "usingComponents": {}
 }

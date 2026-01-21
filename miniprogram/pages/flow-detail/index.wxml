@@ -1,5 +1,6 @@
-<!-- 电子流详情 -->
-<view class="page">
+<!-- 电子流详情 - 设计系统重构版 -->
+<view class="ds-page ds-page--with-decor ds-safe-top ds-safe-bottom">
+  
   <!-- 成功/驳回横幅 -->
   <view wx:if="{{flowData.status === 'completed'}}" class="status-banner success">
     <text class="banner-icon">✓</text>
@@ -8,104 +9,100 @@
   </view>
 
   <!-- 详情卡片 -->
-  <view class="detail-card">
-    <!-- 用户信息 -->
-    <view class="user-section">
-      <image class="avatar" src="{{flowData.applicantAvatar}}" mode="aspectFill"></image>
-      <view class="user-info">
-        <text class="user-name">{{flowData.applicantName}}</text>
-        <text class="user-time">{{flowData.createTime}}</text>
-      </view>
-      <view class="status-badge">
-        <!-- 状态标签：浅色透明背景 -->
-        <t-tag 
-          theme="{{flowData.status === 'pending' ? 'warning' : flowData.status === 'completed' ? 'success' : 'danger'}}" 
-          variant="light"
-        >
-          {{flowData.statusText}}
-        </t-tag>
-      </view>
-    </view>
-
-    <!-- 金额 -->
-    <view class="info-row">
-      <text class="info-label">申请金额</text>
-      <text class="info-amount {{flowData.status === 'completed' ? 'completed' : ''}}">
-        ¥{{flowData.amount}}
-      </text>
-    </view>
-
-    <!-- 类型 -->
-    <view class="info-row">
-      <text class="info-label">申请类型</text>
-      <!-- 类型标签：纯色背景 -->
-      <t-tag 
-        theme="{{flowData.type === 'other' ? 'default' : 'primary'}}"
-        class="type-tag type-tag-{{flowData.type}}"
-      >
-        {{flowData.typeText}}
-      </t-tag>
-    </view>
-
-    <!-- 申请内容 -->
-    <view class="info-row">
-      <text class="info-label">申请内容</text>
-      <text class="info-value">{{flowData.content}}</text>
-    </view>
-
-    <!-- 审批人 -->
-    <view class="info-row last">
-      <text class="info-label">审批人</text>
-      <view class="approver-info">
-        <image class="approver-avatar" src="{{flowData.approverAvatar}}" mode="aspectFill"></image>
-        <text class="approver-name">{{flowData.approverName}}</text>
-      </view>
-    </view>
-
-    <!-- 驳回原因 -->
-    <view wx:if="{{flowData.status === 'rejected'}}" class="reject-reason">
-      <view class="reject-title">💬 驳回原因</view>
-      <text class="reject-text">{{flowData.rejectReason}}</text>
-    </view>
-  </view>
-
-  <!-- 审批流程 -->
-  <view class="detail-card">
-    <text class="section-title">审批流程</text>
-    <view class="timeline">
-      <view class="timeline-item">
-        <view class="timeline-dot"></view>
-        <view class="timeline-content">
-          <text class="timeline-title">{{flowData.applicantName}} 发起申请</text>
-          <text class="timeline-time">{{flowData.createTime}}</text>
+  <view class="ds-main">
+    <view class="ds-card ds-card--strong">
+      <!-- 用户信息 -->
+      <view class="user-section">
+        <image class="detail-avatar" src="{{flowData.applicantAvatar}}" mode="aspectFill"></image>
+        <view class="user-info">
+          <text class="ds-text-subtitle">{{flowData.applicantName}}</text>
+          <text class="ds-text-desc">{{flowData.createTime}}</text>
         </view>
+        <view class="ds-tag ds-tag--{{flowData.status === 'pending' ? 'yellow' : flowData.status === 'completed' ? 'success' : 'danger'}}">
+          {{flowData.statusText}}
+        </view>
+      </view>
+
+      <view class="ds-divider"></view>
+
+      <!-- 金额 -->
+      <view class="info-row">
+        <text class="ds-text-desc">申请金额</text>
+        <view class="info-amount {{flowData.status === 'completed' ? 'success' : ''}}">
+          ¥{{flowData.amount}}
+        </view>
+      </view>
+
+      <!-- 类型 -->
+      <view class="info-row">
+        <text class="ds-text-desc">申请类型</text>
+        <view class="ds-tag ds-tag--{{flowData.type}} type-tag">{{flowData.typeText}}</view>
+      </view>
+
+      <!-- 申请内容 -->
+      <view class="info-row">
+        <text class="ds-text-desc">申请内容</text>
+        <text class="ds-text-body content-text">{{flowData.content}}</text>
+      </view>
+
+      <!-- 审批人 -->
+      <view class="info-row">
+        <text class="ds-text-desc">审批人</text>
+        <view class="ds-row approver-row">
+          <image class="approver-avatar" src="{{flowData.approverAvatar}}" mode="aspectFill"></image>
+          <text class="ds-text-body">{{flowData.approverName}}</text>
+        </view>
+      </view>
+
+      <!-- 驳回原因 -->
+      <view wx:if="{{flowData.status === 'rejected'}}" class="reject-reason">
+        <view class="reject-title">💬 驳回原因</view>
+        <text class="ds-text-body">{{flowData.rejectReason}}</text>
+      </view>
+    </view>
+
+    <!-- 审批流程 -->
+    <view class="ds-card">
+      <view class="ds-card__titleRow">
+        <view class="ds-card__icon"></view>
+        <text class="ds-card__title">审批流程</text>
       </view>
       
-      <view wx:if="{{flowData.status === 'pending'}}" class="timeline-item">
-        <view class="timeline-dot pending"></view>
-        <view class="timeline-content">
-          <text class="timeline-title gray">等待 {{flowData.approverName}} 审批</text>
-          <text class="timeline-time">待处理</text>
+      <view class="timeline">
+        <view class="timeline-item">
+          <view class="timeline-dot"></view>
+          <view class="timeline-content">
+            <text class="ds-text-body timeline-title">{{flowData.applicantName}} 发起申请</text>
+            <text class="ds-text-tip">{{flowData.createTime}}</text>
+          </view>
         </view>
-      </view>
-
-      <view wx:if="{{flowData.status === 'completed'}}" class="timeline-item">
-        <view class="timeline-dot completed"></view>
-        <view class="timeline-content">
-          <text class="timeline-title success">{{flowData.approverName}} 通过了申请</text>
-          <text class="timeline-time">{{flowData.approveTime}}</text>
-          <text wx:if="{{flowData.approveComment}}" class="timeline-comment">
-            {{flowData.approveComment}}
-          </text>
+        
+        <view wx:if="{{flowData.status === 'pending'}}" class="timeline-item">
+          <view class="timeline-dot pending"></view>
+          <view class="timeline-content">
+            <text class="ds-text-body timeline-title gray">等待 {{flowData.approverName}} 审批</text>
+            <text class="ds-text-tip">待处理</text>
+          </view>
         </view>
-      </view>
 
-      <view wx:if="{{flowData.status === 'rejected'}}" class="timeline-item">
-        <view class="timeline-dot rejected"></view>
-        <view class="timeline-content">
-          <text class="timeline-title rejected">{{flowData.approverName}} 驳回了申请</text>
-          <text class="timeline-time">{{flowData.approveTime}}</text>
-          <text class="timeline-comment">{{flowData.rejectReason}}</text>
+        <view wx:if="{{flowData.status === 'completed'}}" class="timeline-item">
+          <view class="timeline-dot completed"></view>
+          <view class="timeline-content">
+            <text class="ds-text-body timeline-title success">{{flowData.approverName}} 通过了申请</text>
+            <text class="ds-text-tip">{{flowData.approveTime}}</text>
+            <text wx:if="{{flowData.approveComment}}" class="timeline-comment">
+              {{flowData.approveComment}}
+            </text>
+          </view>
+        </view>
+
+        <view wx:if="{{flowData.status === 'rejected'}}" class="timeline-item">
+          <view class="timeline-dot rejected"></view>
+          <view class="timeline-content">
+            <text class="ds-text-body timeline-title rejected">{{flowData.approverName}} 驳回了申请</text>
+            <text class="ds-text-tip">{{flowData.approveTime}}</text>
+            <text class="ds-text-desc timeline-comment">{{flowData.rejectReason}}</text>
+          </view>
         </view>
       </view>
     </view>
@@ -113,19 +110,19 @@
 
   <!-- 审批操作按钮（仅待审批状态显示） -->
   <view wx:if="{{flowData.status === 'pending' && canApprove}}" class="action-buttons">
-    <t-button theme="default" size="large" bind:tap="onReject" class="btn-reject">
-      驳回
-    </t-button>
-    <t-button theme="primary" size="large" bind:tap="onApprove" class="btn-approve">
-      通过
-    </t-button>
+    <button class="ds-btn-secondary btn-reject" bind:tap="onReject">
+      <text class="ds-btn-text">驳回</text>
+    </button>
+    <button class="ds-btn-primary btn-approve" bind:tap="onApprove">
+      <text class="ds-btn-text">通过</text>
+    </button>
   </view>
 
   <!-- 重新编辑按钮（已驳回状态显示） -->
   <view wx:if="{{flowData.status === 'rejected' && canEdit}}" class="action-buttons">
-    <t-button theme="primary" size="large" bind:tap="onEdit" block>
-      重新编辑并提交
-    </t-button>
+    <button class="ds-btn-primary" style="width: 100%;" bind:tap="onEdit">
+      <text class="ds-btn-text">重新编辑并提交</text>
+    </button>
   </view>
 
   <!-- 驳回弹窗 -->

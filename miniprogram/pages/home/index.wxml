@@ -1,18 +1,21 @@
-<!-- 首页 -->
-<view class="page">
-  <!-- 用户信息区 -->
-  <view class="user-info">
-    <view class="user-header">
-      <view class="user-left">
-        <image class="avatar" src="{{userInfo.avatarUrl}}" mode="aspectFill" bindtap="goToSettings"></image>
-        <view class="user-text">
-          <text class="user-name">{{userInfo.nickName}}</text>
-          <text class="user-welcome">欢迎回来</text>
+<!-- 首页 - 设计系统重构版 -->
+<view class="ds-page ds-page--with-decor">
+  
+  <!-- 用户信息卡片区 -->
+  <view class="ds-main">
+    <view class="ds-card ds-card--strong user-card">
+      <view class="ds-row ds-row--between">
+        <view class="ds-row" bindtap="goToSettings">
+          <image class="user-avatar" src="{{userInfo.avatarUrl}}" mode="aspectFill"></image>
+          <view class="user-text">
+            <text class="ds-text-subtitle">{{userInfo.nickName}}</text>
+            <text class="ds-text-desc">欢迎回来～</text>
+          </view>
         </view>
-      </view>
-      <view class="user-right" bindtap="goToStatistics">
-        <text class="stat-label"> 数据统计 →</text>
-        <text class="stat-amount">¥{{monthlyExpense}}</text>
+        <view class="stat-badge" bindtap="goToStatistics">
+          <text class="stat-label">本月支出 →</text>
+          <text class="stat-amount">¥{{monthlyExpense}}</text>
+        </view>
       </view>
     </view>
   </view>
@@ -25,7 +28,7 @@
   </t-tabs>
 
   <!-- 筛选栏 -->
-  <view class="filter-bar">
+  <view class="filter-section">
     <view class="filter-chip {{currentFilter === 'all' ? 'active' : ''}}" bindtap="onFilterChange" data-filter="all">全部</view>
     <view class="filter-chip {{currentFilter === 'funds' ? 'active' : ''}}" bindtap="onFilterChange" data-filter="funds">拨款</view>
     <view class="filter-chip {{currentFilter === 'travel' ? 'active' : ''}}" bindtap="onFilterChange" data-filter="travel">出行</view>
@@ -34,47 +37,42 @@
 
   <!-- 电子流列表 -->
   <view class="flow-list">
-    <view wx:if="{{flowList.length === 0}}" class="empty-state">
-      <t-empty description="暂无数据" />
+    <!-- 空状态 -->
+    <view wx:if="{{flowList.length === 0}}" class="ds-empty">
+      <text class="ds-empty__icon">📋</text>
+      <text class="ds-empty__text">暂无数据</text>
     </view>
+    
+    <!-- 列表项 -->
     <view wx:else>
-      <view class="flow-item" wx:for="{{flowList}}" wx:key="id" bindtap="goToDetail" data-id="{{item.id}}">
+      <view class="flow-card ds-card" wx:for="{{flowList}}" wx:key="id" bindtap="goToDetail" data-id="{{item.id}}">
         <view class="flow-header">
           <image class="flow-avatar" src="{{item.applicantAvatar}}" mode="aspectFill"></image>
-          <view class="flow-user-info">
-            <text class="flow-user-name">{{item.applicantName}}</text>
+          <view class="flow-info">
+            <text class="flow-name">{{item.applicantName}}</text>
             <text class="flow-time">{{item.createTime}}</text>
           </view>
           <view class="flow-badges">
-            <!-- 状态标签：浅色透明背景 -->
-            <t-tag theme="{{item.status === 'pending' ? 'warning' : item.status === 'completed' ? 'success' : 'danger'}}" size="small" variant="light">
+            <!-- 状态标签 -->
+            <view class="ds-tag ds-tag--{{item.status === 'pending' ? 'yellow' : item.status === 'completed' ? 'success' : 'danger'}}">
               {{item.statusText}}
-            </t-tag>
-            <!-- 类型标签：纯色背景 -->
-            <t-tag 
-              theme="{{item.type === 'other' ? 'default' : 'primary'}}" 
-              size="small"
-              class="type-tag type-tag-{{item.type}}"
-            >
-              {{item.typeText}}
-            </t-tag>
+            </view>
           </view>
         </view>
+        
         <view class="flow-content">{{item.content}}</view>
+        
         <view class="flow-footer">
           <text class="flow-amount">¥{{item.amount}}</text>
-          <view class="flow-action">
-            <text wx:if="{{item.status === 'rejected'}}" class="action-text rejected">重新编辑</text>
-            <text wx:else class="action-text">查看详情</text>
-          </view>
+          <view class="flow-type-tag ds-tag ds-tag--{{item.type}}">{{item.typeText}}</view>
         </view>
       </view>
     </view>
   </view>
 
   <!-- 新建电子流按钮 -->
-  <view class="fab-button" bindtap="goToCreate">
-    <t-icon name="add" size="48rpx" color="#FFFFFF" />
+  <view class="ds-fab" bindtap="goToCreate">
+    <text style="font-size: 64rpx; color: #FFFFFF; font-weight: 300; position: relative; z-index: 1;height: 48px;">+</text>
   </view>
 
   <!-- Toast 提示 -->

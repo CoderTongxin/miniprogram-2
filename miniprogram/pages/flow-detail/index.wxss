@@ -1,9 +1,4 @@
-/* pages/flow-detail/index.wxss */
-.page {
-  min-height: 100vh;
-  background: #F5F5F5;
-  padding-bottom: 140rpx;
-}
+/* pages/flow-detail/index.wxss - 设计系统重构版 */
 
 /* 状态横幅 */
 .status-banner {
@@ -13,20 +8,24 @@
   display: flex;
   flex-direction: column;
   align-items: center;
+  position: relative;
+  z-index: 2;
 }
 
 .status-banner.success {
-  background: linear-gradient(135deg, #029B6C 0%, #00C48C 100%);
+  background: linear-gradient(135deg, #2E8B57 0%, #3CB371 100%);
+  box-shadow: 0 12rpx 32rpx rgba(46,139,87,0.30);
 }
 
 .banner-icon {
   font-size: 96rpx;
   margin-bottom: 16rpx;
+  font-weight: 300;
 }
 
 .banner-text {
   font-size: 36rpx;
-  font-weight: 600;
+  font-weight: 800;
   margin-bottom: 12rpx;
 }
 
@@ -35,137 +34,97 @@
   opacity: 0.9;
 }
 
-/* 详情卡片 */
-.detail-card {
-  background: #FFFFFF;
-  margin: 24rpx;
-  border-radius: 16rpx;
-  padding: 32rpx;
-}
-
 /* 用户信息区域 */
 .user-section {
   display: flex;
   align-items: center;
-  padding-bottom: 32rpx;
-  border-bottom: 2rpx solid #F2F3F5;
+  padding-bottom: 24rpx;
 }
 
-.avatar {
+.detail-avatar {
   width: 100rpx;
   height: 100rpx;
   border-radius: 50%;
-  margin-right: 24rpx;
+  border: 3rpx solid rgba(255,255,255,0.9);
+  box-shadow: 0 8rpx 24rpx rgba(255,125,165,0.25);
+  margin-right: 20rpx;
   flex-shrink: 0;
 }
 
 .user-info {
   display: flex;
   flex-direction: column;
+  gap: 8rpx;
   flex: 1;
-}
-
-.user-name {
-  font-size: 32rpx;
-  font-weight: 600;
-  color: #333333;
-  margin-bottom: 12rpx;
-}
-
-.user-time {
-  font-size: 26rpx;
-  color: #999999;
-}
-
-.status-badge {
-  flex-shrink: 0;
 }
 
 /* 信息行 */
 .info-row {
-  padding: 32rpx 0;
-  border-bottom: 2rpx solid #F2F3F5;
+  padding: 20rpx 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8rpx;
 }
 
-.info-row.last {
-  border-bottom: none;
-}
-
-.info-label {
-  font-size: 28rpx;
-  color: #999999;
-  margin-bottom: 16rpx;
-  display: block;
+.type-tag {
+  margin-top: 8rpx;
+  align-self: flex-start;
 }
 
 .info-amount {
   font-size: 56rpx;
-  font-weight: 600;
-  color: #D54941;
+  font-weight: 800;
+  background: linear-gradient(135deg, #F86585 0%, #FB7A97 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  line-height: 1.2;
+  margin-top: 8rpx;
 }
 
-.info-amount.completed {
-  color: #029B6C;
+.info-amount.success {
+  background: linear-gradient(135deg, #2E8B57 0%, #3CB371 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
-.info-value {
-  font-size: 30rpx;
-  color: #333333;
-  line-height: 1.6;
-  display: block;
+.content-text {
+  line-height: 1.7;
+  margin-top: 8rpx;
 }
 
-.approver-info {
-  display: flex;
-  align-items: center;
+.approver-row {
+  margin-top: 8rpx;
 }
 
 .approver-avatar {
   width: 60rpx;
   height: 60rpx;
   border-radius: 50%;
-  margin-right: 16rpx;
-}
-
-.approver-name {
-  font-size: 30rpx;
-  color: #333333;
+  border: 2rpx solid rgba(255,255,255,0.9);
+  box-shadow: 0 4rpx 12rpx rgba(255,125,165,0.20);
+  flex-shrink: 0;
 }
 
 /* 驳回原因 */
 .reject-reason {
-  margin-top: 32rpx;
+  margin-top: 24rpx;
   padding: 24rpx;
-  background: #FFE9E9;
-  border-radius: 12rpx;
-  border-left: 8rpx solid #D54941;
+  background: linear-gradient(180deg, #FFE5E5 0%, #FFF0F0 100%);
+  border-radius: 28rpx;
+  border-left: 8rpx solid #F86585;
+  box-shadow: 0 6rpx 16rpx rgba(248,101,133,0.15);
 }
 
 .reject-title {
   font-size: 28rpx;
-  font-weight: 600;
-  color: #D54941;
+  font-weight: 800;
+  color: #F86585;
   margin-bottom: 16rpx;
 }
 
-.reject-text {
-  font-size: 28rpx;
-  color: #666666;
-  line-height: 1.6;
-  display: block;
-}
-
 /* 审批流程 */
-.section-title {
-  font-size: 32rpx;
-  font-weight: 600;
-  color: #333333;
-  margin-bottom: 32rpx;
-  display: block;
-}
-
 .timeline {
-  padding: 16rpx 0;
+  padding: 24rpx 0 0;
 }
 
 .timeline-item {
@@ -178,74 +137,83 @@
   content: '';
   position: absolute;
   left: 8rpx;
-  top: 40rpx;
+  top: 36rpx;
   bottom: 0;
   width: 4rpx;
-  background: #E5E5E5;
+  background: linear-gradient(180deg, rgba(251,122,151,0.25) 0%, rgba(251,122,151,0.08) 100%);
+  border-radius: 2rpx;
 }
 
 .timeline-dot {
   width: 20rpx;
   height: 20rpx;
   border-radius: 50%;
-  background: #0052D9;
+  background: linear-gradient(135deg, #F86585 0%, #FB7A97 100%);
+  box-shadow: 0 4rpx 12rpx rgba(248,101,133,0.35), inset 0 1rpx 2rpx rgba(255,255,255,0.6);
   margin-right: 24rpx;
-  margin-top: 8rpx;
+  margin-top: 6rpx;
   flex-shrink: 0;
   z-index: 1;
+  position: relative;
+}
+
+.timeline-dot::after {
+  content: '';
+  position: absolute;
+  top: 2rpx;
+  left: 3rpx;
+  width: 8rpx;
+  height: 8rpx;
+  background: rgba(255,255,255,0.5);
+  border-radius: 50%;
+  filter: blur(1rpx);
 }
 
 .timeline-dot.pending {
-  background: #E5E5E5;
+  background: linear-gradient(135deg, #FFD894 0%, #FFCF7F 100%);
+  box-shadow: 0 4rpx 12rpx rgba(255,200,120,0.30);
 }
 
 .timeline-dot.completed {
-  background: #029B6C;
+  background: linear-gradient(135deg, #3CB371 0%, #2E8B57 100%);
+  box-shadow: 0 4rpx 12rpx rgba(46,139,87,0.30);
 }
 
 .timeline-dot.rejected {
-  background: #D54941;
+  background: linear-gradient(135deg, #F86585 0%, #EB5472 100%);
+  box-shadow: 0 4rpx 12rpx rgba(248,101,133,0.35);
 }
 
 .timeline-content {
   flex: 1;
   display: flex;
   flex-direction: column;
+  gap: 6rpx;
 }
 
 .timeline-title {
-  font-size: 30rpx;
-  font-weight: 500;
-  color: #333333;
-  margin-bottom: 8rpx;
+  font-weight: 700;
 }
 
 .timeline-title.gray {
-  color: #999999;
+  color: rgba(134,59,78,0.45);
 }
 
 .timeline-title.success {
-  color: #029B6C;
+  color: #2E8B57;
 }
 
 .timeline-title.rejected {
-  color: #D54941;
-}
-
-.timeline-time {
-  font-size: 24rpx;
-  color: #999999;
-  margin-bottom: 8rpx;
+  color: #F86585;
 }
 
 .timeline-comment {
-  font-size: 26rpx;
-  color: #666666;
   line-height: 1.6;
   margin-top: 8rpx;
-  padding: 16rpx;
-  background: #F8FBFF;
-  border-radius: 8rpx;
+  padding: 16rpx 20rpx;
+  background: linear-gradient(180deg, #FFF1F6 0%, #FFF7FA 100%);
+  border-radius: 20rpx;
+  box-shadow: inset 0 1rpx 2rpx rgba(255,255,255,0.8), 0 4rpx 12rpx rgba(255,200,220,0.12);
 }
 
 /* 底部操作按钮 */
@@ -254,40 +222,22 @@
   bottom: 0;
   left: 0;
   right: 0;
-  background: #FFFFFF;
-  padding: 24rpx 32rpx;
+  background: rgba(255,255,255,0.95);
+  backdrop-filter: blur(20rpx);
+  padding: 20rpx 24rpx;
+  padding-bottom: calc(env(safe-area-inset-bottom));
   display: flex;
-  gap: 24rpx;
-  box-shadow: 0 -4rpx 16rpx rgba(0, 0, 0, 0.06);
+  gap: 16rpx;
+  box-shadow: 0 -8rpx 24rpx rgba(255,125,165,0.15);
   z-index: 100;
 }
 
 .btn-reject {
   flex: 1;
+  height: 88rpx;
 }
 
 .btn-approve {
-  flex: 1;
-}
-
-/* 自定义类型标签颜色 */
-/* 拨款：深绿色（比审批通过的 #029B6C 更深） */
-.type-tag-funds {
-  background-color: #00875A !important;
-  border-color: #00875A !important;
-  color: #FFFFFF !important;
-}
-
-/* 出行：浅蓝色 */
-.type-tag-travel {
-  background-color: #5CADFF !important;
-  border-color: #5CADFF !important;
-  color: #FFFFFF !important;
-}
-
-/* 其他：保持默认灰色 */
-.type-tag-other {
-  background-color: #DCDCDC !important;
-  border-color: #DCDCDC !important;
-  color: #333333 !important;
+  flex: 2;
+  height: 88rpx;
 }

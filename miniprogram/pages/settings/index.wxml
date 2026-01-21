@@ -1,29 +1,32 @@
-<!-- 用户设置页面 -->
-<view class="page">
+<!-- 用户设置页面 - 设计系统重构版 -->
+<view class="ds-page ds-page--with-decor ds-safe-top ds-safe-bottom">
+  
   <!-- 用户信息卡片 -->
-  <view class="user-card">
-    <image class="avatar" src="{{userInfo.avatarUrl}}" mode="aspectFill"></image>
-    <view class="user-info">
-      <text class="nickname">{{userInfo.nickName}}</text>
-      <text class="openid">ID: {{userInfo._openid}}</text>
+  <view class="ds-main">
+    <view class="ds-card ds-card--strong profile-card">
+      <view class="ds-row">
+        <image class="profile-avatar" src="{{userInfo.avatarUrl}}" mode="aspectFill"></image>
+        <view class="profile-info">
+          <text class="ds-text-title">{{userInfo.nickName}}</text>
+          <text class="ds-text-desc">ID: {{userInfo._openid}}</text>
+        </view>
+      </view>
     </view>
   </view>
 
   <!-- 伴侣关系 -->
-  <view class="section">
-    <text class="section-title">伴侣关系</text>
+  <view class="ds-main">
+    <view class="ds-card__titleRow">
+      <view class="ds-card__icon"></view>
+      <text class="ds-card__title">伴侣关系</text>
+    </view>
     
     <!-- 未绑定状态 -->
-    <view wx:if="{{userInfo.relationStatus === 'single'}}" class="relation-card">
-      <t-cell-group theme="card">
-        <t-cell 
-          title="绑定状态" 
-          note="未绑定"
-          left-icon="user"
-        >
-          <t-tag slot="note" theme="warning" variant="light">未绑定</t-tag>
-        </t-cell>
-      </t-cell-group>
+    <view wx:if="{{userInfo.relationStatus === 'single'}}" class="ds-card">
+      <view class="status-row">
+        <text class="ds-text-body">绑定状态</text>
+        <view class="ds-tag ds-tag--yellow">未绑定</view>
+      </view>
 
       <!-- Tab切换 -->
       <t-tabs value="{{activeTab}}" bind:change="onTabChange" theme="line" class="tabs">
@@ -34,104 +37,104 @@
       <!-- 生成绑定码 -->
       <view wx:if="{{activeTab === 'generate'}}" class="bind-section">
         <view wx:if="{{bindCode}}" class="code-display">
-          <text class="code-label">您的绑定码</text>
+          <text class="ds-text-desc">您的绑定码</text>
           <view class="code-value">{{bindCode}}</view>
-          <text class="code-tip">请将此绑定码分享给您的伴侣</text>
+          <text class="ds-text-tip">请将此绑定码分享给您的伴侣</text>
           <text class="code-expire">有效期至：{{expireTimeText}}</text>
-          <t-button theme="primary" block bind:tap="onCopyCode" class="mt-3">
-            复制绑定码
-          </t-button>
+          <button class="ds-btn-primary mt-24" bind:tap="onCopyCode">
+            <text class="ds-btn-text">复制绑定码</text>
+          </button>
         </view>
         
-        <t-button 
+        <button 
           wx:else
-          theme="primary" 
-          block 
+          class="ds-btn-primary"
           bind:tap="onGenerateCode"
-          loading="{{generating}}"
         >
-          生成绑定码
-        </t-button>
+          <text class="ds-btn-text">生成绑定码</text>
+        </button>
       </view>
 
       <!-- 输入绑定码 -->
       <view wx:if="{{activeTab === 'input'}}" class="bind-section">
-        <t-input
+        <input
+          class="ds-input"
           value="{{inputCode}}"
           placeholder="请输入对方的绑定码"
           maxlength="6"
-          bind:change="onInputCodeChange"
-          clearable
+          bind:input="onInputCodeChange"
         />
-        <t-button 
-          theme="primary" 
-          block 
+        <button 
+          class="ds-btn-primary mt-24 {{inputCode.length !== 6 ? 'ds-btn-disabled' : ''}}"
           bind:tap="onBindPartner"
           disabled="{{inputCode.length !== 6}}"
-          loading="{{binding}}"
-          class="mt-3"
         >
-          确认绑定
-        </t-button>
+          <text class="ds-btn-text">确认绑定</text>
+        </button>
       </view>
     </view>
 
     <!-- 已绑定状态 -->
-    <view wx:elif="{{userInfo.relationStatus === 'paired'}}" class="relation-card">
-      <t-cell-group theme="card">
-        <t-cell 
-          title="绑定状态"
-          left-icon="check-circle"
-        >
-          <t-tag slot="note" theme="success" variant="light">已绑定</t-tag>
-        </t-cell>
-        
-        <t-cell 
-          title="伴侣信息"
-          left-icon="user"
-        >
-          <view slot="note" class="partner-info">
-            <image class="partner-avatar" src="{{userInfo.partnerAvatarUrl}}" mode="aspectFill"></image>
-            <text class="partner-name">{{userInfo.partnerNickName}}</text>
-          </view>
-        </t-cell>
-      </t-cell-group>
+    <view wx:elif="{{userInfo.relationStatus === 'paired'}}" class="ds-card">
+      <view class="status-row">
+        <text class="ds-text-body">绑定状态</text>
+        <view class="ds-tag ds-tag--success">已绑定</view>
+      </view>
+      
+      <view class="ds-divider"></view>
 
-      <t-button 
-        theme="danger" 
-        variant="outline"
-        block 
+      <view class="partner-section">
+        <text class="ds-text-desc">伴侣信息</text>
+        <view class="ds-card__content partner-card">
+          <view class="ds-row">
+            <image class="partner-avatar" src="{{userInfo.partnerAvatarUrl}}" mode="aspectFill"></image>
+            <text class="ds-text-subtitle">{{userInfo.partnerNickName}}</text>
+          </view>
+        </view>
+      </view>
+
+      <button 
+        class="ds-btn-secondary mt-24"
         bind:tap="onUnbind"
-        class="mt-3"
       >
-        解除绑定
-      </t-button>
+        <text class="ds-btn-text">解除绑定</text>
+      </button>
     </view>
   </view>
 
   <!-- 其他设置 -->
-  <view class="section">
-    <text class="section-title">其他设置</text>
-    <t-cell-group theme="card">
-      <t-cell 
-        title="清除缓存" 
-        arrow
-        hover
-        bind:tap="onClearCache"
-      />
-      <t-cell 
-        title="关于我们" 
-        arrow
-        hover
-        bind:tap="onAbout"
-      />
-      <t-cell 
-        title="退出登录" 
-        arrow
-        hover
-        bind:tap="onLogout"
-      />
-    </t-cell-group>
+  <view class="ds-main">
+    <view class="ds-card__titleRow">
+      <view class="ds-card__icon"></view>
+      <text class="ds-card__title">其他设置</text>
+    </view>
+    
+    <view class="ds-card">
+      <view class="ds-listItem" bind:tap="onClearCache">
+        <view class="ds-listItem__content">
+          <text class="ds-listItem__title">清除缓存</text>
+        </view>
+        <text class="ds-listItem__arrow">›</text>
+      </view>
+      
+      <view class="ds-divider"></view>
+      
+      <view class="ds-listItem" bind:tap="onAbout">
+        <view class="ds-listItem__content">
+          <text class="ds-listItem__title">关于我们</text>
+        </view>
+        <text class="ds-listItem__arrow">›</text>
+      </view>
+      
+      <view class="ds-divider"></view>
+      
+      <view class="ds-listItem" bind:tap="onLogout">
+        <view class="ds-listItem__content">
+          <text class="ds-listItem__title">退出登录</text>
+        </view>
+        <text class="ds-listItem__arrow">›</text>
+      </view>
+    </view>
   </view>
 
   <!-- Toast 提示 -->

@@ -1,95 +1,84 @@
-<!-- 登录页面 -->
-<view class="login-page">
-  <view class="login-container">
-    <!-- Logo区域 -->
-    <view class="logo-section">
-      <image class="app-logo" src="/images/logo.png" mode="aspectFit"></image>
-      <text class="app-name">You and Me</text>
-      <text class="app-slogan">情侣电子流审批小程序</text>
-    </view>
-
-    <!-- 登录按钮 -->
-    <view class="login-section">
-      <t-button 
-        wx:if="{{!isLoggedIn}}"
-        theme="light" 
-        size="large" 
-        block
-        bind:tap="onGetUserProfile"
-        class="login-btn auth-btn"
-      >
-        <view class="btn-content">
-          <t-icon name="user" size="36rpx" />
-          <text class="btn-text">微信授权登录</text>
-        </view>
-      </t-button>
-
-      <t-button 
-        wx:else
-        theme="light" 
-        size="large" 
-        block
-        bind:tap="onEnterHome"
-        class="login-btn enter-btn"
-      >
-        进入首页
-      </t-button>
-    </view>
-
-    <!-- 用户信息展示 -->
-    <view wx:if="{{isLoggedIn}}" class="user-info-section">
-      <view class="user-card">
-        <image class="user-avatar" src="{{userInfo.avatarUrl}}" mode="aspectFill"></image>
-        <view class="user-text">
-          <text class="user-name">{{userInfo.nickName}}</text>
-          <text class="user-tip">登录成功</text>
-        </view>
-      </view>
-
-      <!-- 伴侣状态 -->
-      <view class="partner-status">
-        <view wx:if="{{userInfo.relationStatus === 'single'}}" class="status-card single">
-          <t-icon name="info-circle" size="40rpx" color="#E37318" />
-          <text class="status-text">您还未绑定伴侣</text>
-          <t-button theme="warning" size="small" bind:tap="goToSettings" class="bind-btn">
-            去绑定
-          </t-button>
-        </view>
-
-        <view wx:elif="{{userInfo.relationStatus === 'paired'}}" class="status-card paired">
-          <t-icon name="check-circle" size="40rpx" color="#029B6C" />
-          <text class="status-text">已与 {{userInfo.partnerNickName}} 绑定</text>
-        </view>
-      </view>
-    </view>
-
-    <!-- 功能介绍 -->
-    <view class="features-section">
-      <text class="features-title">功能特点</text>
-      <view class="feature-item">
-        <t-icon name="check-circle" size="32rpx" color="#0052D9" />
-        <text class="feature-text">快速发起消费申请</text>
-      </view>
-      <view class="feature-item">
-        <t-icon name="check-circle" size="32rpx" color="#0052D9" />
-        <text class="feature-text">便捷的审批流程</text>
-      </view>
-      <view class="feature-item">
-        <t-icon name="check-circle" size="32rpx" color="#0052D9" />
-        <text class="feature-text">完整的数据统计</text>
-      </view>
-      <view class="feature-item">
-        <t-icon name="check-circle" size="32rpx" color="#0052D9" />
-        <text class="feature-text">伴侣关系管理</text>
-      </view>
-    </view>
-
-    <!-- 隐私说明 -->
-    <view class="privacy-section">
-      <text class="privacy-text">登录即表示同意《用户协议》和《隐私政策》</text>
-    </view>
+<!-- 准了么 - 登录页（像素级还原） -->
+<view class="page">
+  
+  <!-- 背景装饰层 -->
+  <view class="bg-decor">
+    <view class="light-spot light-spot-1"></view>
+    <view class="light-spot light-spot-2"></view>
+    <view class="light-spot light-spot-3"></view>
+    <view class="stars"></view>
   </view>
 
-  <!-- Toast 提示 -->
-  <t-toast id="t-toast" />
+  <!-- 调试模式：参考图叠加（开发时可开启） -->
+  <image wx:if="{{debugOverlay}}" class="debug-overlay" src="/images/login_ucd.png" mode="aspectFit"></image>
+
+  <!-- 主容器卡片 -->
+  <view class="main-card">
+    
+    <!-- 顶部 Logo 区 -->
+    <view class="header">
+      <image class="logo" src="/images/logo.png" mode="widthFix"></image>
+      <text class="subtitle">先申请，再甜甜地批准~</text>
+    </view>
+
+    <!-- 卡片1：我的小档案 -->
+    <view class="card card-profile">
+      <view class="card-title-row">
+        <view class="icon-dot"></view>
+        <text class="card-title">我的小档案</text>
+        <view class="title-decor"></view>
+      </view>
+
+      <view class="profile-content" bindtap="onTapProfile">
+        <view class="avatar-placeholder">
+          <image wx:if="{{isLoggedIn && userInfo.avatarUrl}}" class="avatar-img" src="{{userInfo.avatarUrl}}" mode="aspectFill"></image>
+        </view>
+        <view class="profile-info">
+          <text class="profile-name">{{isLoggedIn ? userInfo.nickName : '未登录'}}</text>
+          <text class="profile-id">微信ID：{{isLoggedIn && userInfo._openid ? userInfo._openid.slice(0,3) + '...' : '---'}}</text>
+        </view>
+        <view class="profile-right">
+          <view class="pill-status">等待登录</view>
+          <text class="arrow-icon">›</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 卡片2：伴侣绑定 -->
+    <view class="card card-bind">
+      <view class="card-title-row">
+        <view class="icon-dot"></view>
+        <text class="card-title">伴侣绑定</text>
+        <view class="title-decor title-decor-small"></view>
+      </view>
+
+      <!-- 右上角小猪插画 -->
+      <view class="pig-illustration">
+        <view class="pig-heart"></view>
+        <view class="pig-sparkle pig-sparkle-1"></view>
+        <view class="pig-sparkle pig-sparkle-2"></view>
+      </view>
+
+      <view class="bind-content">
+        <text class="bind-main-text">{{isBound ? '已绑定伴侣' : '还没有绑定伴侣哦～'}}</text>
+        <text class="bind-sub-text">{{isBound ? '可以一起互相"审批"和互动。' : '绑定后才可以互相"审批"和互动。'}}</text>
+      </view>
+
+      <!-- 主按钮 -->
+      <view class="main-button" bindtap="onTapBind">
+        <view class="button-highlight"></view>
+        <text class="button-text">{{buttonText}} ›</text>
+      </view>
+
+      <!-- 协议区 -->
+      <view class="agreement">
+        <text class="agreement-text">登录即表示同意 </text>
+        <text class="agreement-link" bindtap="onTapUserAgreement">《用户协议》</text>
+        <text class="agreement-text"> 和 </text>
+        <text class="agreement-link" bindtap="onTapPrivacy">《隐私政策》</text>
+      </view>
+    </view>
+
+  </view>
+
 </view>

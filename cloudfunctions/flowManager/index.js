@@ -24,6 +24,12 @@ function formatAmount(amount) {
   return (amount / 100).toFixed(2)
 }
 
+// 生成伴侣关系ID（用两个openid排序后组合，确保唯一性）
+function generatePartnerRelationId(openid1, openid2) {
+  const ids = [openid1, openid2].sort()
+  return `${ids[0]}_${ids[1]}`
+}
+
 // 主函数
 exports.main = async (event, context) => {
   const wxContext = cloud.getWXContext()
@@ -103,30 +109,35 @@ async function getFlowList(openid, tab = 'todo', type = 'all') {
   const user = userResult.data[0]
   const partnerId = user.partnerId
   
+  // 生成当前伴侣关系ID（用于过滤历史数据）
+  const partnerRelationId = partnerId ? generatePartnerRelationId(openid, partnerId) : null
+  
   // 构建查询条件
   let whereCondition = {}
   
   switch (tab) {
     case 'todo':
-      // 我的待办：状态为待审批 且 我是审批人
+      // 我的待办：状态为待审批 且 我是审批人 且 是当前伴侣关系
       whereCondition = {
         approverId: openid,
-        status: 'pending'
+        status: 'pending',
+        partnerRelationId: partnerRelationId
       }
       break
     
     case 'myapply':
-      // 我的申请：我是申请人
+      // 我的申请：我是申请人 且 是当前伴侣关系
       whereCondition = {
-        applicantId: openid
+        applicantId: openid,
+        partnerRelationId: partnerRelationId
       }
       break
     
     case 'completed':
-      // 已完成：状态为已完成 且（我是申请人 或 我是审批人）
+      // 已完成：状态为已完成 且 是当前伴侣关系
       whereCondition = {
         status: 'completed',
-        _openid: _.in([openid, partnerId])
+        partnerRelationId: partnerRelationId
       }
       break
   }
@@ -233,6 +244,9 @@ async function createFlow(openid, flowData) {
     amount = Math.round(parseFloat(flowData.amount) * 100)
   }
   
+  // 生成伴侣关系ID（用于过滤历史数据）
+  const partnerRelationId = generatePartnerRelationId(openid, partner._openid)
+  
   // 创建电子流记录
   const newFlow = {
     _openid: openid,
@@ -242,6 +256,7 @@ async function createFlow(openid, flowData) {
     approverId: partner._openid,
     approverName: partner.nickName,
     approverAvatar: partner.avatarUrl,
+    partnerRelationId: partnerRelationId, // 记录当前伴侣关系
     content: flowData.content,
     amount: amount,
     amountYuan: formatAmount(amount),
@@ -548,6 +563,9 @@ async function getStatistics(openid, periodType = 'month', year, month) {
   const user = userResult.data[0]
   const partnerId = user.partnerId
   
+  // 生成当前伴侣关系ID
+  const partnerRelationId = partnerId ? generatePartnerRelationId(openid, partnerId) : null
+  
   // 构建时间范围查询条件
   let startDate, endDate
   
@@ -561,10 +579,10 @@ async function getStatistics(openid, periodType = 'month', year, month) {
     endDate = new Date(year, month, 0, 23, 59, 59) // 月末
   }
   
-  // 查询该时间范围内的所有电子流（我和伴侣的）
+  // 查询该时间范围内的所有电子流（只查询当前伴侣关系的）
   const whereCondition = {
     createTime: _.gte(startDate).and(_.lte(endDate)),
-    _openid: _.in([openid, partnerId])
+    partnerRelationId: partnerRelationId
   }
   
   const result = await flowsCollection
@@ -709,6 +727,9 @@ async function generateYearlyTrend(openid, partnerId, year) {
   const flowsCollection = db.collection('flows')
   const trendData = []
   
+  // 生成当前伴侣关系ID
+  const partnerRelationId = partnerId ? generatePartnerRelationId(openid, partnerId) : null
+  
   for (let month = 1; month <= 12; month++) {
     const startDate = new Date(year, month - 1, 1)
     const endDate = new Date(year, month, 0, 23, 59, 59)
@@ -716,7 +737,7 @@ async function generateYearlyTrend(openid, partnerId, year) {
     const result = await flowsCollection
       .where({
         createTime: _.gte(startDate).and(_.lte(endDate)),
-        _openid: _.in([openid, partnerId]),
+        partnerRelationId: partnerRelationId,
         status: 'completed'
       })
       .get()
@@ -762,6 +783,9 @@ async function generateMonthlyTrend(openid, partnerId, currentYear, currentMonth
   const flowsCollection = db.collection('flows')
   const trendData = []
   
+  // 生成当前伴侣关系ID
+  const partnerRelationId = partnerId ? generatePartnerRelationId(openid, partnerId) : null
+  
   for (let i = 0; i < 5; i++) {
     let year = currentYear
     let month = currentMonth - i
@@ -777,7 +801,7 @@ async function generateMonthlyTrend(openid, partnerId, currentYear, currentMonth
     const result = await flowsCollection
       .where({
         createTime: _.gte(startDate).and(_.lte(endDate)),
-        _openid: _.in([openid, partnerId]),
+        partnerRelationId: partnerRelationId,
         status: 'completed'
       })
       .get()

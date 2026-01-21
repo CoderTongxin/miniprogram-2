@@ -1,12 +1,19 @@
-// pages/login/index.js
-import Toast from 'tdesign-miniprogram/toast/index';
+// pages/login/index.js - 准了么登录页（像素级还原版）
 
 const app = getApp();
 
 Page({
   data: {
+    // 调试模式：参考图叠加（开发时可开启）
+    debugOverlay: false,
+    
+    // 用户状态
     isLoggedIn: false,
-    userInfo: null
+    isBound: false,
+    userInfo: null,
+    
+    // 按钮文案（动态计算）
+    buttonText: '去绑定'
   },
 
   onLoad() {
@@ -18,51 +25,144 @@ Page({
     this.checkLoginStatus();
   },
 
+  onShow() {
+    // 每次页面显示时检查状态（可能被其他用户绑定）
+    const userInfo = wx.getStorageSync('userInfo');
+    if (userInfo && userInfo._openid) {
+      this.checkBindStatusFromCloud();
+    }
+  },
+
   // 检查登录状态
   checkLoginStatus() {
     const userInfo = wx.getStorageSync('userInfo');
     
     if (userInfo && userInfo._openid) {
-      // 已登录，检查是否已绑定伴侣
-      if (userInfo.relationStatus === 'paired' && userInfo.partnerId) {
-        // 已登录且已绑定伴侣，自动跳转到首页
-        console.log('用户已登录且已绑定伴侣，自动跳转首页');
-        
-        // 保存到全局数据
-        app.globalData.userInfo = userInfo;
+      // 已登录
+      const isBound = userInfo.relationStatus === 'paired' && userInfo.partnerId;
+      
+      // 保存到全局数据
+      app.globalData.userInfo = userInfo;
+      if (userInfo.partnerId) {
         app.globalData.partnerId = userInfo.partnerId;
-        
-        // 延迟跳转，让用户看到加载动画
-        setTimeout(() => {
-          wx.hideLoading();
-          wx.reLaunch({
-            url: '/pages/home/index',
-            success: () => {
-              console.log('自动跳转首页成功');
-            },
-            fail: (err) => {
-              console.error('自动跳转首页失败：', err);
-              wx.hideLoading();
-            }
-          });
-        }, 300);
-      } else {
-        // 已登录但未绑定伴侣，显示登录页面
-        this.setData({
-          isLoggedIn: true,
-          userInfo: userInfo
-        });
-        
-        setTimeout(() => {
-          wx.hideLoading();
-        }, 500);
       }
+      
+      // 如果已登录且已绑定，直接跳转到首页
+      if (isBound) {
+        console.log('用户已登录且已绑定，自动跳转到首页');
+        setTimeout(() => {
+          this.goToHome();
+        }, 500);
+        return;
+      }
+      
+      // 已登录但未绑定，显示登录页面
+      this.setData({
+        isLoggedIn: true,
+        isBound: false,
+        userInfo: userInfo,
+        buttonText: '去绑定'
+      });
+      
+      setTimeout(() => {
+        wx.hideLoading();
+      }, 500);
     } else {
-      // 未登录，显示登录页面
+      // 未登录
+      this.setData({
+        isLoggedIn: false,
+        isBound: false,
+        buttonText: '去登录绑定'
+      });
+      
       setTimeout(() => {
         wx.hideLoading();
       }, 500);
     }
+  },
+
+  // 从云端检查绑定状态（检测被动绑定）
+  checkBindStatusFromCloud() {
+    const currentUserInfo = wx.getStorageSync('userInfo');
+    const wasNotBound = currentUserInfo.relationStatus !== 'paired';
+    
+    wx.cloud.callFunction({
+      name: 'userLogin',
+      data: {
+        action: 'login',
+        userInfo: currentUserInfo
+      },
+      success: (res) => {
+        if (res.result && res.result.success) {
+          const latestUserInfo = res.result.data.userInfo;
+          
+          // 检测到被其他用户绑定
+          if (wasNotBound && latestUserInfo.relationStatus === 'paired' && latestUserInfo.partnerId) {
+            console.log('检测到被其他用户绑定');
+            
+            // 更新本地数据
+            wx.setStorageSync('userInfo', latestUserInfo);
+            app.globalData.userInfo = latestUserInfo;
+            app.globalData.partnerId = latestUserInfo.partnerId;
+            
+            // 显示提示并跳转
+            wx.showModal({
+              title: '绑定成功',
+              content: `已经被 ${latestUserInfo.partnerNickName} 绑定为情侣，现在系统会自动为您跳转到首页`,
+              showCancel: false,
+              success: () => {
+                setTimeout(() => {
+                  this.goToHome();
+                }, 1000);
+              }
+            });
+          }
+        }
+      },
+      fail: (err) => {
+        console.error('检查绑定状态失败：', err);
+      }
+    });
+  },
+
+  // 点击"我的小档案"
+  onTapProfile() {
+    console.log('[onTapProfile] 点击我的小档案');
+    
+    const { isLoggedIn } = this.data;
+    
+    if (!isLoggedIn) {
+      // 未登录，触发登录
+      this.onGetUserProfile();
+    } else {
+      // 已登录，可以展示更多信息或跳转到个人页面
+      console.log('已登录，userInfo:', this.data.userInfo);
+    }
+  },
+
+  // 点击主按钮（去绑定/进入首页）
+  onTapBind() {
+    console.log('[onTapBind] 点击主按钮');
+    
+    const { isLoggedIn, isBound } = this.data;
+    
+    // 场景1：未登录 -> 先登录再跳转
+    if (!isLoggedIn) {
+      console.log('未登录，触发登录流程');
+      this.onGetUserProfile();
+      return;
+    }
+    
+    // 场景2：已登录但未绑定 -> 跳转到设置页面
+    if (!isBound) {
+      console.log('已登录未绑定，跳转到设置页面');
+      this.goToSettings();
+      return;
+    }
+    
+    // 场景3：已登录且已绑定 -> 进入首页
+    console.log('已登录已绑定，进入首页');
+    this.goToHome();
   },
 
   // 获取用户信息并登录
@@ -82,12 +182,9 @@ Page({
       fail: (err) => {
         wx.hideLoading();
         console.error('获取用户信息失败：', err);
-        Toast({
-          context: this,
-          selector: '#t-toast',
-          message: '获取用户信息失败',
-          theme: 'error',
-          direction: 'column',
+        wx.showToast({
+          title: '获取用户信息失败',
+          icon: 'none'
         });
       }
     });
@@ -114,6 +211,7 @@ Page({
         
         if (res.result && res.result.success) {
           const userData = res.result.data.userInfo;
+          const isBound = userData.relationStatus === 'paired' && userData.partnerId;
           
           // 保存用户信息到本地和全局
           wx.setStorageSync('userInfo', userData);
@@ -125,112 +223,43 @@ Page({
             wx.setStorageSync('partnerId', userData.partnerId);
           }
           
+          // 更新状态
           this.setData({
             isLoggedIn: true,
-            userInfo: userData
+            isBound: isBound,
+            userInfo: userData,
+            buttonText: isBound ? '进入首页' : '去绑定'
           });
           
-          Toast({
-            context: this,
-            selector: '#t-toast',
-            message: res.result.data.isNewUser ? '注册成功' : '登录成功',
-            theme: 'success',
-            direction: 'column',
+          wx.showToast({
+            title: res.result.data.isNewUser ? '注册成功' : '登录成功',
+            icon: 'success'
           });
 
-          // 如果已绑定伴侣，1秒后自动跳转首页
-          if (userData.relationStatus === 'paired') {
-            setTimeout(() => {
-              this.onEnterHome();
-            }, 1000);
-          }
+          // 登录成功后，如果是从主按钮触发的，延迟跳转
+          setTimeout(() => {
+            if (isBound) {
+              this.goToHome();
+            } else {
+              this.goToSettings();
+            }
+          }, 1000);
         } else {
-          Toast({
-            context: this,
-            selector: '#t-toast',
-            message: res.result.message || '登录失败',
-            theme: 'error',
-            direction: 'column',
+          wx.showToast({
+            title: res.result.message || '登录失败',
+            icon: 'none'
           });
         }
       },
       fail: (err) => {
         wx.hideLoading();
         console.error('登录失败：', err);
-        Toast({
-          context: this,
-          selector: '#t-toast',
-          message: '登录失败，请重试',
-          theme: 'error',
-          direction: 'column',
+        wx.showToast({
+          title: '登录失败，请重试',
+          icon: 'none'
         });
       }
     });
-  },
-
-  // 进入首页
-  onEnterHome() {
-    const { userInfo } = this.data;
-    
-    // 检查是否已绑定伴侣
-    if (!userInfo || userInfo.relationStatus !== 'paired') {
-      wx.showModal({
-        title: '提示',
-        content: '您还未绑定伴侣，是否前往设置页面绑定？',
-        confirmText: '去绑定',
-        cancelText: '稍后',
-        success: (res) => {
-          if (res.confirm) {
-            this.goToSettings();
-          } else {
-            // 用户选择稍后，仍然可以进入首页
-            wx.showLoading({
-              title: '加载中...',
-              mask: true
-            });
-            
-            wx.reLaunch({
-              url: '/pages/home/index',
-              success: () => {
-                setTimeout(() => {
-                  wx.hideLoading();
-                }, 300);
-              },
-              fail: (err) => {
-                console.error('跳转首页失败：', err);
-                wx.hideLoading();
-                wx.showToast({
-                  title: '跳转失败',
-                  icon: 'error'
-                });
-              }
-            });
-          }
-        }
-      });
-    } else {
-      wx.showLoading({
-        title: '加载中...',
-        mask: true
-      });
-      
-      wx.reLaunch({
-        url: '/pages/home/index',
-        success: () => {
-          setTimeout(() => {
-            wx.hideLoading();
-          }, 300);
-        },
-        fail: (err) => {
-          console.error('跳转首页失败：', err);
-          wx.hideLoading();
-          wx.showToast({
-            title: '跳转失败',
-            icon: 'error'
-          });
-        }
-      });
-    }
   },
 
   // 跳转到设置页面
@@ -247,9 +276,57 @@ Page({
           wx.hideLoading();
         }, 300);
       },
-      fail: () => {
+      fail: (err) => {
+        console.error('跳转设置页面失败：', err);
         wx.hideLoading();
+        wx.showToast({
+          title: '跳转失败',
+          icon: 'none'
+        });
       }
+    });
+  },
+
+  // 跳转到首页
+  goToHome() {
+    wx.showLoading({
+      title: '加载中...',
+      mask: true
+    });
+    
+    wx.reLaunch({
+      url: '/pages/home/index',
+      success: () => {
+        setTimeout(() => {
+          wx.hideLoading();
+        }, 300);
+      },
+      fail: (err) => {
+        console.error('跳转首页失败：', err);
+        wx.hideLoading();
+        wx.showToast({
+          title: '跳转失败',
+          icon: 'none'
+        });
+      }
+    });
+  },
+
+  // 点击用户协议
+  onTapUserAgreement() {
+    console.log('[onTapUserAgreement] 点击用户协议');
+    wx.showToast({
+      title: '用户协议（开发中）',
+      icon: 'none'
+    });
+  },
+
+  // 点击隐私政策
+  onTapPrivacy() {
+    console.log('[onTapPrivacy] 点击隐私政策');
+    wx.showToast({
+      title: '隐私政策（开发中）',
+      icon: 'none'
     });
   }
 });
