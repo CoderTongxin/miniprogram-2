@@ -45,13 +45,16 @@ exports.main = async (event, context) => {
     approveComment, // 审批备注
     periodType,     // 统计周期: year, month
     year,           // 年份
-    month           // 月份
+    month,          // 月份
+    page,           // 分页：页码
+    pageSize,       // 分页：每页数量
+    searchKeyword   // 搜索关键词
   } = event
 
   try {
     switch (action) {
       case 'getList':
-        return await getFlowList(openid, tab, type)
+        return await getFlowList(openid, tab, type, page, pageSize, searchKeyword)
       
       case 'create':
         return await createFlow(openid, flowData)
@@ -90,7 +93,7 @@ exports.main = async (event, context) => {
 }
 
 // 获取电子流列表
-async function getFlowList(openid, tab = 'todo', type = 'all') {
+async function getFlowList(openid, tab = 'todo', type = 'all', page = 1, pageSize = 10, searchKeyword = '') {
   const flowsCollection = db.collection('flows')
   const usersCollection = db.collection('users')
   
@@ -147,11 +150,31 @@ async function getFlowList(openid, tab = 'todo', type = 'all') {
     whereCondition.type = type
   }
   
-  // 查询数据
+  // 添加搜索条件（模糊搜索 content 字段）
+  if (searchKeyword && searchKeyword.trim()) {
+    whereCondition.content = db.RegExp({
+      regexp: searchKeyword.trim(),
+      options: 'i' // 不区分大小写
+    })
+  }
+  
+  // 先查询总数
+  const countResult = await flowsCollection
+    .where(whereCondition)
+    .count()
+  
+  const total = countResult.total
+  
+  // 计算分页参数
+  const skip = (page - 1) * pageSize
+  const hasMore = skip + pageSize < total
+  
+  // 查询数据（分页）
   const result = await flowsCollection
     .where(whereCondition)
     .orderBy('createTime', 'desc')
-    .limit(100)
+    .skip(skip)
+    .limit(pageSize)
     .get()
   
   // 格式化数据
@@ -193,7 +216,13 @@ async function getFlowList(openid, tab = 'todo', type = 'all') {
   
   return {
     success: true,
-    data: flows
+    data: flows,
+    pagination: {
+      page: page,
+      pageSize: pageSize,
+      total: total,
+      hasMore: hasMore
+    }
   }
 }
 

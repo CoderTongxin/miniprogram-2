@@ -51,6 +51,86 @@
   z-index: 2;
 }
 
+/* 搜索栏 */
+.search-section {
+  padding: 0 0 16rpx 0;
+  margin-bottom: 8rpx;
+}
+
+.search-bar {
+  display: flex;
+  align-items: center;
+  background: linear-gradient(180deg, #FFF1F6 0%, #FFF7FA 100%);
+  border-radius: 999rpx;
+  padding: 14rpx 24rpx;
+  box-shadow: 0 4rpx 12rpx rgba(255,125,165,0.08);
+  transition: all 0.3s ease;
+}
+
+.search-bar:active {
+  background: linear-gradient(180deg, #FFEBF3 0%, #FFF1F6 100%);
+  box-shadow: 0 2rpx 8rpx rgba(255,125,165,0.12);
+}
+
+.search-icon {
+  font-size: 28rpx;
+  margin-right: 12rpx;
+  opacity: 0.6;
+  flex-shrink: 0;
+}
+
+.search-input {
+  flex: 1;
+  font-size: 26rpx;
+  color: #863B4E;
+  line-height: 1.4;
+}
+
+.search-placeholder {
+  color: rgba(134,59,78,0.40);
+  font-size: 26rpx;
+}
+
+.search-actions {
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+  flex-shrink: 0;
+  margin-left: 16rpx;
+}
+
+.search-divider {
+  width: 2rpx;
+  height: 28rpx;
+  background: rgba(134,59,78,0.15);
+  border-radius: 1rpx;
+}
+
+.search-clear {
+  font-size: 24rpx;
+  color: rgba(134,59,78,0.50);
+  padding: 4rpx 8rpx;
+  transition: all 0.2s ease;
+}
+
+.search-clear:active {
+  color: rgba(134,59,78,0.70);
+  transform: scale(0.95);
+}
+
+.search-submit {
+  font-size: 24rpx;
+  color: #F86585;
+  font-weight: 600;
+  padding: 4rpx 8rpx;
+  transition: all 0.2s ease;
+}
+
+.search-submit:active {
+  color: #FF5F8E;
+  transform: scale(0.95);
+}
+
 /* 筛选栏 */
 .filter-section {
   background: rgba(255,255,255,0.85);
@@ -85,6 +165,67 @@
 /* 电子流列表 */
 .flow-list {
   padding: 16rpx 24rpx 120rpx;
+}
+
+/* 加载更多提示 */
+.load-more {
+  padding: 40rpx 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.load-more-loading {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+}
+
+.loading-dot {
+  width: 12rpx;
+  height: 12rpx;
+  background: linear-gradient(135deg, #F86585 0%, #FB7A97 100%);
+  border-radius: 50%;
+  animation: loading-bounce 1.4s infinite ease-in-out both;
+}
+
+.loading-dot:nth-child(1) {
+  animation-delay: -0.32s;
+}
+
+.loading-dot:nth-child(2) {
+  animation-delay: -0.16s;
+}
+
+@keyframes loading-bounce {
+  0%, 80%, 100% {
+    transform: scale(0);
+    opacity: 0.3;
+  }
+  40% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.load-more-text {
+  font-size: 24rpx;
+  color: rgba(134,59,78,0.45);
+  margin-left: 8rpx;
+}
+
+.load-more-end {
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+  width: 100%;
+  padding: 0 40rpx;
+}
+
+.end-line {
+  flex: 1;
+  height: 2rpx;
+  background: linear-gradient(90deg, transparent 0%, rgba(251,122,151,0.20) 50%, transparent 100%);
 }
 
 /* 流卡片 */

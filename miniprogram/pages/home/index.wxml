@@ -37,10 +37,32 @@
 
   <!-- 电子流列表 -->
   <view class="flow-list">
+    <!-- 搜索栏 -->
+    <view class="search-section">
+      <view class="search-bar">
+        <text class="search-icon">🔍</text>
+        <input 
+          class="search-input" 
+          placeholder="搜索申请内容" 
+          placeholder-class="search-placeholder"
+          value="{{searchKeyword}}"
+          bindinput="onSearchInput"
+          bindconfirm="onSearch"
+          bindfocus="onSearchFocus"
+          bindblur="onSearchBlur"
+        />
+        <view wx:if="{{searchKeyword}}" class="search-actions">
+          <text class="search-clear" bindtap="onClearSearch">清空</text>
+          <view class="search-divider"></view>
+          <text class="search-submit" bindtap="onSearch">搜索</text>
+        </view>
+      </view>
+    </view>
+
     <!-- 空状态 -->
-    <view wx:if="{{flowList.length === 0}}" class="ds-empty">
+    <view wx:if="{{flowList.length === 0 && !loading}}" class="ds-empty">
       <text class="ds-empty__icon">📋</text>
-      <text class="ds-empty__text">暂无数据</text>
+      <text class="ds-empty__text">{{searchKeyword ? '未找到相关数据' : '暂无数据'}}</text>
     </view>
     
     <!-- 列表项 -->
@@ -65,6 +87,21 @@
         <view class="flow-footer">
           <text class="flow-amount">¥{{item.amount}}</text>
           <view class="flow-type-tag ds-tag ds-tag--{{item.type}}">{{item.typeText}}</view>
+        </view>
+      </view>
+
+      <!-- 加载更多提示 -->
+      <view class="load-more">
+        <view wx:if="{{loadingMore}}" class="load-more-loading">
+          <text class="loading-dot"></text>
+          <text class="loading-dot"></text>
+          <text class="loading-dot"></text>
+          <text class="load-more-text">加载中...</text>
+        </view>
+        <view wx:elif="{{!hasMore && flowList.length > 0}}" class="load-more-end">
+          <view class="end-line"></view>
+          <text class="load-more-text">已加载完，共 {{total}} 条数据</text>
+          <view class="end-line"></view>
         </view>
       </view>
     </view>

@@ -9,11 +9,22 @@ Page({
     currentFilter: 'all',
     flowList: [],
     loading: false,
-    todoCount: 0 // 待办数量
+    todoCount: 0, // 待办数量
+    // 分页相关
+    page: 1,
+    pageSize: 10,
+    hasMore: true,
+    total: 0,
+    loadingMore: false,
+    // 搜索相关
+    searchKeyword: '',
+    showSearch: false
   },
 
   onLoad() {
     this.checkLogin();
+    // 尝试恢复之前保存的 tab 和筛选状态
+    this.restoreTabState();
     this.loadFlowList();
     this.calculateMonthlyExpense();
     this.loadTodoCount(); // 加载待办数量
@@ -21,6 +32,12 @@ Page({
 
   onShow() {
     this.checkLogin();
+    // 从其他页面返回时，恢复状态并刷新数据
+    const shouldRestore = wx.getStorageSync('shouldRestoreHomeTab');
+    if (shouldRestore) {
+      this.restoreTabState();
+      wx.removeStorageSync('shouldRestoreHomeTab');
+    }
     // 刷新列表数据
     this.loadFlowList();
     this.calculateMonthlyExpense();
@@ -29,12 +46,20 @@ Page({
 
   // 下拉刷新
   onPullDownRefresh() {
-    this.loadFlowList();
+    this.resetAndLoadList();
     this.calculateMonthlyExpense();
     this.loadTodoCount(); // 刷新待办数量
     setTimeout(() => {
       wx.stopPullDownRefresh();
     }, 1000);
+  },
+
+  // 上拉加载更多
+  onReachBottom() {
+    if (!this.data.hasMore || this.data.loadingMore) {
+      return;
+    }
+    this.loadMoreFlowList();
   },
 
   // 检查登录状态
@@ -50,9 +75,41 @@ Page({
     this.setData({ userInfo });
   },
 
-  // 加载电子流列表
+  // 保存当前 tab 和筛选状态
+  saveTabState() {
+    const { activeTab, currentFilter, searchKeyword } = this.data;
+    wx.setStorageSync('homeTabState', {
+      activeTab,
+      currentFilter,
+      searchKeyword
+    });
+  },
+
+  // 恢复之前保存的 tab 和筛选状态
+  restoreTabState() {
+    const savedState = wx.getStorageSync('homeTabState');
+    if (savedState) {
+      this.setData({
+        activeTab: savedState.activeTab || 'todo',
+        currentFilter: savedState.currentFilter || 'all',
+        searchKeyword: savedState.searchKeyword || ''
+      });
+    }
+  },
+
+  // 重置并加载列表
+  resetAndLoadList() {
+    this.setData({
+      page: 1,
+      flowList: [],
+      hasMore: true
+    });
+    this.loadFlowList();
+  },
+
+  // 加载电子流列表（首次加载）
   loadFlowList() {
-    const { activeTab, currentFilter } = this.data;
+    const { activeTab, currentFilter, page, pageSize, searchKeyword } = this.data;
     
     this.setData({ loading: true });
     
@@ -67,14 +124,20 @@ Page({
       data: {
         action: 'getList',
         tab: activeTab,
-        type: currentFilter
+        type: currentFilter,
+        page: page,
+        pageSize: pageSize,
+        searchKeyword: searchKeyword
       },
       success: (res) => {
         console.log('获取电子流列表成功：', res);
         
         if (res.result && res.result.success) {
+          const { data, pagination } = res.result;
           this.setData({
-            flowList: res.result.data,
+            flowList: data,
+            hasMore: pagination.hasMore,
+            total: pagination.total,
             loading: false
           });
         } else {
@@ -101,6 +164,45 @@ Page({
         });
         this.setData({ loading: false });
         wx.hideLoading();
+      }
+    });
+  },
+
+  // 加载更多数据
+  loadMoreFlowList() {
+    const { activeTab, currentFilter, page, pageSize, searchKeyword, flowList } = this.data;
+    
+    this.setData({ loadingMore: true });
+    
+    const nextPage = page + 1;
+    
+    wx.cloud.callFunction({
+      name: 'flowManager',
+      data: {
+        action: 'getList',
+        tab: activeTab,
+        type: currentFilter,
+        page: nextPage,
+        pageSize: pageSize,
+        searchKeyword: searchKeyword
+      },
+      success: (res) => {
+        if (res.result && res.result.success) {
+          const { data, pagination } = res.result;
+          this.setData({
+            flowList: flowList.concat(data),
+            page: nextPage,
+            hasMore: pagination.hasMore,
+            total: pagination.total,
+            loadingMore: false
+          });
+        } else {
+          this.setData({ loadingMore: false });
+        }
+      },
+      fail: (err) => {
+        console.error('加载更多失败：', err);
+        this.setData({ loadingMore: false });
       }
     });
   },
@@ -177,12 +279,16 @@ Page({
     
     this.setData({
       activeTab: newTab,
-      currentFilter: 'all'
+      currentFilter: 'all',
+      searchKeyword: '' // 切换 Tab 时清空搜索
     });
+    
+    // 保存当前状态
+    this.saveTabState();
     
     // 延迟加载，让 Tab 切换动画更流畅
     setTimeout(() => {
-      this.loadFlowList();
+      this.resetAndLoadList();
       this.loadTodoCount(); // 切换 Tab 时也刷新待办数量
     }, 100);
   },
@@ -199,15 +305,70 @@ Page({
       currentFilter: filter
     });
     
+    // 保存当前状态
+    this.saveTabState();
+    
     // 延迟加载，让筛选动画更流畅
     setTimeout(() => {
-      this.loadFlowList();
+      this.resetAndLoadList();
     }, 100);
+  },
+
+  // 切换搜索框显示
+  toggleSearch() {
+    this.setData({
+      showSearch: !this.data.showSearch
+    });
+  },
+
+  // 搜索输入
+  onSearchInput(e) {
+    this.setData({
+      searchKeyword: e.detail.value
+    });
+  },
+
+  // 搜索框聚焦
+  onSearchFocus() {
+    // 可以在这里添加聚焦动画效果
+  },
+
+  // 搜索框失焦
+  onSearchBlur() {
+    // 失焦时如果有内容，自动执行搜索
+    if (this.data.searchKeyword && this.data.searchKeyword.trim()) {
+      // 延迟执行，避免与点击事件冲突
+      setTimeout(() => {
+        this.resetAndLoadList();
+      }, 200);
+    }
+  },
+
+  // 执行搜索
+  onSearch() {
+    if (this.data.searchKeyword && this.data.searchKeyword.trim()) {
+      this.saveTabState(); // 保存搜索状态
+      this.resetAndLoadList();
+    }
+  },
+
+  // 清空搜索
+  onClearSearch() {
+    this.setData({
+      searchKeyword: ''
+    });
+    this.saveTabState(); // 保存清空后的状态
+    this.resetAndLoadList();
   },
 
   // 跳转到详情页
   goToDetail(e) {
     const id = e.currentTarget.dataset.id;
+    
+    // 保存当前状态，以便返回时恢复
+    this.saveTabState();
+    wx.setStorageSync('shouldRestoreHomeTab', true);
+    
     wx.showLoading({
       title: '加载中...',
       mask: true
