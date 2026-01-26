@@ -8,13 +8,15 @@ Page({
     activeTab: 'todo',
     currentFilter: 'all',
     flowList: [],
-    loading: false
+    loading: false,
+    todoCount: 0 // 待办数量
   },
 
   onLoad() {
     this.checkLogin();
     this.loadFlowList();
     this.calculateMonthlyExpense();
+    this.loadTodoCount(); // 加载待办数量
   },
 
   onShow() {
@@ -22,12 +24,14 @@ Page({
     // 刷新列表数据
     this.loadFlowList();
     this.calculateMonthlyExpense();
+    this.loadTodoCount(); // 加载待办数量
   },
 
   // 下拉刷新
   onPullDownRefresh() {
     this.loadFlowList();
     this.calculateMonthlyExpense();
+    this.loadTodoCount(); // 刷新待办数量
     setTimeout(() => {
       wx.stopPullDownRefresh();
     }, 1000);
@@ -101,6 +105,29 @@ Page({
     });
   },
 
+  // 加载待办数量
+  loadTodoCount() {
+    wx.cloud.callFunction({
+      name: 'flowManager',
+      data: {
+        action: 'getList',
+        tab: 'todo',
+        type: 'all'
+      },
+      success: (res) => {
+        if (res.result && res.result.success) {
+          const count = res.result.data.length;
+          this.setData({
+            todoCount: count
+          });
+        }
+      },
+      fail: (err) => {
+        console.error('获取待办数量失败：', err);
+      }
+    });
+  },
+
   // 计算本月支出
   calculateMonthlyExpense() {
     const userInfo = wx.getStorageSync('userInfo');
@@ -156,6 +183,7 @@ Page({
     // 延迟加载，让 Tab 切换动画更流畅
     setTimeout(() => {
       this.loadFlowList();
+      this.loadTodoCount(); // 切换 Tab 时也刷新待办数量
     }, 100);
   },
 

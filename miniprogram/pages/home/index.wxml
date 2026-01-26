@@ -22,7 +22,7 @@
 
   <!-- Tab 标签栏 -->
   <t-tabs value="{{activeTab}}" bind:change="onTabChange" theme="line" class="tabs-container">
-    <t-tab-panel label="我的待办" value="todo" />
+    <t-tab-panel label="我的待办" value="todo" badge-props="{{todoCount > 0 ? {count: todoCount > 10 ? '10+' : todoCount} : null}}" />
     <t-tab-panel label="我的申请" value="myapply" />
     <t-tab-panel label="已完成" value="completed" />
   </t-tabs>

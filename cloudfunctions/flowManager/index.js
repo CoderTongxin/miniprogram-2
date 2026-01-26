@@ -117,10 +117,10 @@ async function getFlowList(openid, tab = 'todo', type = 'all') {
   
   switch (tab) {
     case 'todo':
-      // 我的待办：状态为待审批 且 我是审批人 且 是当前伴侣关系
+      // 我的待办：（待审批 或 已驳回）且 我是审批人 且 是当前伴侣关系
       whereCondition = {
         approverId: openid,
-        status: 'pending',
+        status: _.in(['pending', 'rejected']),
         partnerRelationId: partnerRelationId
       }
       break

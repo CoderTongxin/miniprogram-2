@@ -107,8 +107,7 @@ Page({
   onTabChange(e) {
     this.setData({
       activeTab: e.detail.value,
-      bindCode: '',
-      inputCode: ''
+      inputCode: '' // 只清空输入框，保留已生成的绑定码
     });
   },
 
