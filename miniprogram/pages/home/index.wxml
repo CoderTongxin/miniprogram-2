@@ -4,12 +4,19 @@
   <!-- 用户信息卡片区 -->
   <view class="ds-main">
     <view class="ds-card ds-card--strong user-card">
+      <!-- 游客模式提示 -->
+      <view wx:if="{{isGuest}}" class="guest-banner">
+        <text class="guest-text">👋 您正在以游客模式浏览，</text>
+        <text class="guest-link" bindtap="requireLogin">点击登录</text>
+        <text class="guest-text">体验完整功能</text>
+      </view>
+      
       <view class="ds-row ds-row--between">
         <view class="ds-row" bindtap="goToSettings">
           <image class="user-avatar" src="{{userInfo.avatarUrl}}" mode="aspectFill"></image>
           <view class="user-text">
             <text class="ds-text-subtitle">{{userInfo.nickName}}</text>
-            <text class="ds-text-desc">欢迎回来～</text>
+            <text class="ds-text-desc">{{isGuest ? '登录后可创建申请' : '欢迎回来～'}}</text>
           </view>
         </view>
         <view class="stat-badge" bindtap="goToStatistics">

@@ -5,6 +5,32 @@
   margin-bottom: 0rpx !important;
 }
 
+/* 游客模式提示 */
+.guest-banner {
+  background: linear-gradient(135deg, #FFE7B5 0%, #FFD894 100%);
+  border-radius: 16rpx;
+  padding: 16rpx 20rpx;
+  margin-bottom: 20rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  box-shadow: 0 4rpx 12rpx rgba(255,200,120,0.25);
+}
+
+.guest-text {
+  font-size: 24rpx;
+  color: #9A5A1A;
+}
+
+.guest-link {
+  font-size: 24rpx;
+  color: #F86585;
+  font-weight: 700;
+  margin: 0 8rpx;
+  text-decoration: underline;
+}
+
 .user-avatar {
   width: 96rpx;
   height: 96rpx;

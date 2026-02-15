@@ -1,0 +1,61 @@
+/* pages/user-agreement/index.wxss */
+.policy-page {
+  min-height: 100vh;
+  background: linear-gradient(180deg, #FCE6EC 0%, #FEECF0 100%);
+  padding: 40rpx 30rpx;
+  padding-bottom: calc(env(safe-area-inset-bottom) + 40rpx);
+}
+
+.policy-container {
+  background: #FFFFFF;
+  border-radius: 32rpx;
+  padding: 40rpx 32rpx;
+  box-shadow: 0 8rpx 32rpx rgba(255,125,165,0.15);
+}
+
+.policy-header {
+  text-align: center;
+  margin-bottom: 40rpx;
+  padding-bottom: 32rpx;
+  border-bottom: 2rpx solid rgba(251,122,151,0.15);
+}
+
+.policy-title {
+  display: block;
+  font-size: 48rpx;
+  font-weight: 800;
+  color: #863B4E;
+  margin-bottom: 16rpx;
+}
+
+.policy-update {
+  display: block;
+  font-size: 24rpx;
+  color: rgba(134,59,78,0.60);
+}
+
+.policy-content {
+  display: flex;
+  flex-direction: column;
+  gap: 32rpx;
+}
+
+.policy-section {
+  display: flex;
+  flex-direction: column;
+  gap: 16rpx;
+}
+
+.section-title {
+  font-size: 32rpx;
+  font-weight: 700;
+  color: #863B4E;
+  margin-bottom: 8rpx;
+}
+
+.section-text {
+  font-size: 28rpx;
+  color: rgba(134,59,78,0.80);
+  line-height: 44rpx;
+  text-align: justify;
+}

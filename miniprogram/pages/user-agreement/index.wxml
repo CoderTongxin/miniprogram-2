@@ -1,0 +1,61 @@
+<!-- 用户协议页面 -->
+<view class="policy-page">
+  <view class="policy-container">
+    <view class="policy-header">
+      <text class="policy-title">用户协议</text>
+      <text class="policy-update">更新日期：2026年2月</text>
+    </view>
+
+    <view class="policy-content">
+      <view class="policy-section">
+        <text class="section-title">一、服务说明</text>
+        <text class="section-text">欢迎使用 准了吗 情侣电子流审批小程序。本协议是您与本小程序之间的法律协议。</text>
+      </view>
+
+      <view class="policy-section">
+        <text class="section-title">二、账号注册</text>
+        <text class="section-text">1. 您需要使用微信账号登录本小程序</text>
+        <text class="section-text">2. 您应保证提供的信息真实、准确</text>
+        <text class="section-text">3. 一个微信账号只能绑定一位伴侣</text>
+      </view>
+
+      <view class="policy-section">
+        <text class="section-title">三、使用规范</text>
+        <text class="section-text">您在使用本服务时应遵守以下规范：</text>
+        <text class="section-text">1. 不得发布违法、违规内容</text>
+        <text class="section-text">2. 不得恶意滥用审批功能</text>
+        <text class="section-text">3. 尊重伴侣，合理使用申请功能</text>
+        <text class="section-text">4. 不得将账号转让或出借他人使用</text>
+      </view>
+
+      <view class="policy-section">
+        <text class="section-title">四、服务内容</text>
+        <text class="section-text">本小程序提供以下服务：</text>
+        <text class="section-text">1. 情侣关系绑定管理</text>
+        <text class="section-text">2. 电子流申请的创建和提交</text>
+        <text class="section-text">3. 电子流申请的审批和驳回</text>
+        <text class="section-text">4. 申请记录的统计和查询</text>
+      </view>
+
+      <view class="policy-section">
+        <text class="section-title">五、免责声明</text>
+        <text class="section-text">1. 本服务仅供娱乐和情侣互动使用</text>
+        <text class="section-text">2. 我们不对用户之间的纠纷承担责任</text>
+        <text class="section-text">3. 因网络故障等不可抗力导致的服务中断，我们不承担责任</text>
+      </view>
+
+      <view class="policy-section">
+        <text class="section-title">六、协议修改</text>
+        <text class="section-text">我们有权在必要时修改本协议，修改后的协议将在小程序内公布。继续使用服务即表示您同意修改后的协议。</text>
+      </view>
+
+      <view class="policy-section">
+        <text class="section-title">七、联系我们</text>
+        <text class="section-text">如有任何疑问，请通过小程序内的反馈功能联系我们。
+        </text>
+        <text class="section-text">联系方式：gin199413@163.com
+        </text>
+      </view>
+    </view>
+  </view>
+</view>

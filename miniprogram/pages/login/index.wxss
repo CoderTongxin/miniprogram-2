@@ -269,6 +269,60 @@
   box-shadow: inset 0 1rpx 2rpx rgba(255,255,255,0.8), 0 4rpx 12rpx rgba(255,200,220,0.15);
 }
 
+/* 未登录状态：编辑模式 */
+.profile-edit-content {
+  background: linear-gradient(180deg, #FFF1F6 0%, #FFF7FA 100%);
+  border-radius: 28rpx;
+  padding: 32rpx;
+  box-shadow: inset 0 1rpx 2rpx rgba(255,255,255,0.8), 0 4rpx 12rpx rgba(255,200,220,0.15);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 24rpx;
+}
+
+.avatar-edit-section {
+  display: flex;
+  justify-content: center;
+}
+
+.avatar-button {
+  background: transparent;
+  border: none;
+  padding: 0;
+  margin: 0;
+  line-height: 1;
+}
+
+.avatar-button::after {
+  border: none;
+}
+
+.avatar-hint {
+  font-size: 24rpx;
+  color: rgba(134,59,78,0.45);
+  text-align: center;
+}
+
+.nickname-edit-section {
+  width: 100%;
+}
+
+.nickname-input {
+  height: 80rpx;
+  background: #FFFFFF;
+  border-radius: 40rpx;
+  padding: 0 32rpx;
+  font-size: 28rpx;
+  color: #863B4E;
+  text-align: center;
+  box-shadow: 0 4rpx 12rpx rgba(255,200,220,0.15);
+}
+
+.nickname-placeholder {
+  color: rgba(134,59,78,0.35);
+}
+
 .avatar-placeholder {
   width: 96rpx;
   height: 96rpx;
@@ -519,10 +573,37 @@
   text-shadow: 0 2rpx 4rpx rgba(235,84,114,0.25);
 }
 
+/* ==================== 隐私协议复选框 ==================== */
+.privacy-checkbox-section {
+  margin-bottom: 24rpx;
+  padding: 0 8rpx;
+}
+
+.privacy-checkbox-label {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  line-height: 1.8;
+}
+
+.privacy-text {
+  font-size: 24rpx;
+  color: rgba(134,59,78,0.60);
+  margin-left: 8rpx;
+}
+
+.privacy-link {
+  font-size: 24rpx;
+  color: #F86585;
+  font-weight: 700;
+  margin: 0 4rpx;
+}
+
 /* ==================== 协议区 ==================== */
 .agreement {
   text-align: center;
   line-height: 1.6;
+  margin-top: 16rpx;
 }
 
 .agreement-text {

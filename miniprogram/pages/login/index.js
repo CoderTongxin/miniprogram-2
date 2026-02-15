@@ -10,7 +10,14 @@ Page({
     userInfo: null,
     
     // 按钮文案（动态计算）
-    buttonText: '去绑定'
+    buttonText: '去绑定',
+    
+    // 隐私协议同意状态
+    privacyAgreed: false,
+    
+    // 用户输入的昵称和头像
+    nickName: '',
+    avatarUrl: ''
   },
 
   onLoad() {
@@ -119,23 +126,70 @@ Page({
     });
   },
 
+  // 隐私协议复选框变化
+  onPrivacyChange(e) {
+    this.setData({
+      privacyAgreed: e.detail.value
+    });
+  },
+
+  // 头像选择（使用新的 button open-type="chooseAvatar"）
+  onChooseAvatar(e) {
+    this.setData({
+      avatarUrl: e.detail.avatarUrl
+    });
+  },
+
+  // 昵称输入（使用 type="nickname" 的 input）
+  onNicknameInput(e) {
+    this.setData({
+      nickName: e.detail.value
+    });
+  },
+
   // 点击"我的小档案"
   onTapProfile() {
     const { isLoggedIn } = this.data;
     
     if (!isLoggedIn) {
-      // 未登录，触发登录
-      this.onGetUserProfile();
+      // 未登录时不做操作，需要通过主按钮登录
+      wx.showToast({
+        title: '请先登录',
+        icon: 'none'
+      });
     }
   },
 
   // 点击主按钮（去绑定/进入首页）
   onTapBind() {
-    const { isLoggedIn, isBound } = this.data;
+    const { isLoggedIn, isBound, privacyAgreed, nickName, avatarUrl } = this.data;
     
-    // 场景1：未登录 -> 先登录再跳转
+    // 场景1：未登录 -> 检查隐私协议并登录
     if (!isLoggedIn) {
-      this.onGetUserProfile();
+      // 检查是否同意隐私协议
+      if (!privacyAgreed) {
+        wx.showToast({
+          title: '请先阅读并同意隐私政策',
+          icon: 'none',
+          duration: 2000
+        });
+        return;
+      }
+      
+      // 检查是否已填写昵称和头像
+      if (!nickName || !avatarUrl) {
+        wx.showToast({
+          title: '请先设置头像和昵称',
+          icon: 'none',
+          duration: 2000
+        });
+        return;
+      }
+      
+      this.doLogin({
+        nickName: nickName,
+        avatarUrl: avatarUrl
+      });
       return;
     }
     
@@ -149,32 +203,12 @@ Page({
     this.goToHome();
   },
 
-  // 获取用户信息并登录
-  onGetUserProfile() {
+  // 执行登录
+  doLogin(userInfo) {
     wx.showLoading({
       title: '登录中...',
       mask: true
     });
-
-    // 获取用户信息
-    wx.getUserProfile({
-      desc: '用于完善用户资料',
-      success: (res) => {
-        this.doLogin(res.userInfo);
-      },
-      fail: (err) => {
-        wx.hideLoading();
-        console.error('获取用户信息失败：', err);
-        wx.showToast({
-          title: '获取用户信息失败',
-          icon: 'none'
-        });
-      }
-    });
-  },
-
-  // 执行登录
-  doLogin(userInfo) {
     wx.cloud.callFunction({
       name: 'userLogin',
       data: {
@@ -296,17 +330,15 @@ Page({
 
   // 点击用户协议
   onTapUserAgreement() {
-    wx.showToast({
-      title: '用户协议（开发中）',
-      icon: 'none'
+    wx.navigateTo({
+      url: '/pages/user-agreement/index'
     });
   },
 
   // 点击隐私政策
   onTapPrivacy() {
-    wx.showToast({
-      title: '隐私政策（开发中）',
-      icon: 'none'
+    wx.navigateTo({
+      url: '/pages/privacy/index'
     });
   }
 });

@@ -1,11 +1,13 @@
 {
   "pages": [
-    "pages/login/index",
     "pages/home/index",
+    "pages/login/index",
     "pages/editFlow/index",
     "pages/flow-detail/index",
     "pages/statistics/index",
-    "pages/settings/index"
+    "pages/settings/index",
+    "pages/privacy/index",
+    "pages/user-agreement/index"
   ],
   "window": {
     "backgroundColor": "#F5F5F5",
@@ -28,6 +30,8 @@
     "t-textarea": "tdesign-miniprogram/textarea/textarea",
     "t-radio": "tdesign-miniprogram/radio/radio",
     "t-radio-group": "tdesign-miniprogram/radio-group/radio-group",
+    "t-checkbox": "tdesign-miniprogram/checkbox/checkbox",
+    "t-checkbox-group": "tdesign-miniprogram/checkbox-group/checkbox-group",
     "t-dialog": "tdesign-miniprogram/dialog/dialog",
     "t-toast": "tdesign-miniprogram/toast/toast",
     "t-empty": "tdesign-miniprogram/empty/empty",

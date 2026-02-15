@@ -9,9 +9,6 @@
     <view class="stars"></view>
   </view>
 
-  <!-- 调试模式：参考图叠加（开发时可开启） -->
-  <image wx:if="{{debugOverlay}}" class="debug-overlay" src="/images/login_ucd.png" mode="aspectFit"></image>
-
   <!-- 主容器卡片 -->
   <view class="main-card">
     
@@ -29,7 +26,30 @@
         <view class="title-decor"></view>
       </view>
 
-      <view class="profile-content" bindtap="onTapProfile">
+      <!-- 未登录状态：显示头像昵称输入 -->
+      <view wx:if="{{!isLoggedIn}}" class="profile-edit-content">
+        <view class="avatar-edit-section">
+          <button class="avatar-button" open-type="chooseAvatar" bindchooseavatar="onChooseAvatar">
+            <view class="avatar-placeholder">
+              <image wx:if="{{avatarUrl}}" class="avatar-img" src="{{avatarUrl}}" mode="aspectFill"></image>
+              <text wx:else class="avatar-hint">点击选择头像</text>
+            </view>
+          </button>
+        </view>
+        <view class="nickname-edit-section">
+          <input 
+            class="nickname-input" 
+            type="nickname" 
+            placeholder="请输入昵称" 
+            value="{{nickName}}"
+            bindinput="onNicknameInput"
+            placeholder-class="nickname-placeholder"
+          />
+        </view>
+      </view>
+
+      <!-- 已登录状态：显示用户信息 -->
+      <view wx:else class="profile-content" bindtap="onTapProfile">
         <view class="avatar-placeholder">
           <image wx:if="{{isLoggedIn && userInfo.avatarUrl}}" class="avatar-img" src="{{userInfo.avatarUrl}}" mode="aspectFill"></image>
         </view>
@@ -38,7 +58,7 @@
           <text class="profile-id">微信ID：{{isLoggedIn && userInfo._openid ? userInfo._openid.slice(0,3) + '...' : '---'}}</text>
         </view>
         <view class="profile-right">
-          <view class="pill-status">等待登录</view>
+          <view class="pill-status">已登录</view>
           <text class="arrow-icon">›</text>
         </view>
       </view>
@@ -64,15 +84,28 @@
         <text class="bind-sub-text">{{isBound ? '可以一起互相"审批"和互动。' : '绑定后才可以互相"审批"和互动。'}}</text>
       </view>
 
+      <!-- 隐私协议复选框（仅未登录时显示） -->
+      <view wx:if="{{!isLoggedIn}}" class="privacy-checkbox-section">
+        <checkbox-group bindchange="onPrivacyChange">
+          <label class="privacy-checkbox-label">
+            <checkbox value="agree" checked="{{privacyAgreed}}" color="#F86585" />
+            <text class="privacy-text">我已阅读并同意</text>
+            <text class="privacy-link" catchtap="onTapUserAgreement">《用户协议》</text>
+            <text class="privacy-text">和</text>
+            <text class="privacy-link" catchtap="onTapPrivacy">《隐私政策》</text>
+          </label>
+        </checkbox-group>
+      </view>
+
       <!-- 主按钮 -->
       <view class="main-button" bindtap="onTapBind">
         <view class="button-highlight"></view>
         <text class="button-text">{{buttonText}} ›</text>
       </view>
 
-      <!-- 协议区 -->
-      <view class="agreement">
-        <text class="agreement-text">登录即表示同意 </text>
+      <!-- 协议提示区（已登录时显示） -->
+      <view wx:if="{{isLoggedIn}}" class="agreement">
+        <text class="agreement-text">已同意 </text>
         <text class="agreement-link" bindtap="onTapUserAgreement">《用户协议》</text>
         <text class="agreement-text"> 和 </text>
         <text class="agreement-link" bindtap="onTapPrivacy">《隐私政策》</text>

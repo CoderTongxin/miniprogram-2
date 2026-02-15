@@ -18,30 +18,40 @@ Page({
     loadingMore: false,
     // 搜索相关
     searchKeyword: '',
-    showSearch: false
+    showSearch: false,
+    // 游客模式
+    isGuest: true
   },
 
   onLoad() {
-    this.checkLogin();
-    // 尝试恢复之前保存的 tab 和筛选状态
-    this.restoreTabState();
-    this.loadFlowList();
-    this.calculateMonthlyExpense();
-    this.loadTodoCount(); // 加载待办数量
+    const isLoggedIn = this.checkLogin();
+    
+    if (isLoggedIn) {
+      // 已登录用户：加载真实数据
+      this.restoreTabState();
+      this.loadFlowList();
+      this.calculateMonthlyExpense();
+      this.loadTodoCount();
+    } else {
+      // 游客模式：显示示例数据
+      this.loadGuestData();
+    }
   },
 
   onShow() {
-    this.checkLogin();
-    // 从其他页面返回时，恢复状态并刷新数据
-    const shouldRestore = wx.getStorageSync('shouldRestoreHomeTab');
-    if (shouldRestore) {
-      this.restoreTabState();
-      wx.removeStorageSync('shouldRestoreHomeTab');
+    const isLoggedIn = this.checkLogin();
+    
+    if (isLoggedIn) {
+      // 已登录用户：刷新数据
+      const shouldRestore = wx.getStorageSync('shouldRestoreHomeTab');
+      if (shouldRestore) {
+        this.restoreTabState();
+        wx.removeStorageSync('shouldRestoreHomeTab');
+      }
+      this.loadFlowList();
+      this.calculateMonthlyExpense();
+      this.loadTodoCount();
     }
-    // 刷新列表数据
-    this.loadFlowList();
-    this.calculateMonthlyExpense();
-    this.loadTodoCount(); // 加载待办数量
   },
 
   // 下拉刷新
@@ -62,17 +72,90 @@ Page({
     this.loadMoreFlowList();
   },
 
-  // 检查登录状态
+  // 检查登录状态（不强制跳转）
   checkLogin() {
     const userInfo = wx.getStorageSync('userInfo');
+    const app = getApp();
+    
     if (!userInfo || !userInfo._openid) {
-      wx.reLaunch({
-        url: '/pages/login/index'
+      // 游客模式
+      this.setData({ 
+        isGuest: true,
+        userInfo: {
+          nickName: '游客',
+          avatarUrl: 'https://via.placeholder.com/100/FFB8D5/FFFFFF?text=Guest'
+        }
       });
-      return;
+      return false;
     }
     
-    this.setData({ userInfo });
+    // 已登录
+    this.setData({ 
+      isGuest: false,
+      userInfo: userInfo 
+    });
+    app.globalData.isGuest = false;
+    return true;
+  },
+
+  // 加载游客模式示例数据
+  loadGuestData() {
+    const demoFlowList = [
+      {
+        id: 'demo1',
+        applicantName: '示例用户',
+        applicantAvatar: 'https://via.placeholder.com/100/FFB8D5/FFFFFF?text=Demo',
+        content: '这是一个示例电子流申请，登录后可以创建真实的申请',
+        amount: '100.00',
+        type: 'other',
+        typeText: '其他',
+        status: 'pending',
+        statusText: '待审批',
+        createTime: '2024-12-20 10:00'
+      },
+      {
+        id: 'demo2',
+        applicantName: '示例用户',
+        applicantAvatar: 'https://via.placeholder.com/100/FFB8D5/FFFFFF?text=Demo',
+        content: '绑定伴侣后，你们可以互相审批电子流申请',
+        amount: '200.00',
+        type: 'funds',
+        typeText: '拨款',
+        status: 'completed',
+        statusText: '已完成',
+        createTime: '2024-12-19 15:30'
+      }
+    ];
+
+    this.setData({
+      flowList: demoFlowList,
+      monthlyExpense: '0',
+      todoCount: 0,
+      hasMore: false,
+      total: 2,
+      loading: false
+    });
+  },
+
+  // 检查是否需要登录
+  requireLogin() {
+    if (this.data.isGuest) {
+      wx.showModal({
+        title: '需要登录',
+        content: '此功能需要登录后才能使用，是否前往登录？',
+        confirmText: '去登录',
+        cancelText: '暂不',
+        success: (res) => {
+          if (res.confirm) {
+            wx.navigateTo({
+              url: '/pages/login/index'
+            });
+          }
+        }
+      });
+      return false;
+    }
+    return true;
   },
 
   // 保存当前 tab 和筛选状态
@@ -361,6 +444,12 @@ Page({
 
   // 跳转到详情页
   goToDetail(e) {
+    // 游客模式下的示例数据不能查看详情
+    if (this.data.isGuest) {
+      this.requireLogin();
+      return;
+    }
+
     const id = e.currentTarget.dataset.id;
     
     // 保存当前状态，以便返回时恢复
@@ -385,8 +474,12 @@ Page({
     });
   },
 
-  // 跳转到创建页
+  // 跳转到创建页（需要登录）
   goToCreate() {
+    if (!this.requireLogin()) {
+      return;
+    }
+
     wx.showLoading({
       title: '加载中...',
       mask: true
@@ -405,8 +498,12 @@ Page({
     });
   },
 
-  // 跳转到统计页
+  // 跳转到统计页（需要登录）
   goToStatistics() {
+    if (!this.requireLogin()) {
+      return;
+    }
+
     wx.showLoading({
       title: '加载中...',
       mask: true
@@ -425,8 +522,12 @@ Page({
     });
   },
 
-  // 跳转到设置页
+  // 跳转到设置页（需要登录）
   goToSettings() {
+    if (!this.requireLogin()) {
+      return;
+    }
+
     wx.showLoading({
       title: '加载中...',
       mask: true
