@@ -4,9 +4,6 @@ const app = getApp();
 
 Page({
   data: {
-    // 调试模式：参考图叠加（开发时可开启）
-    debugOverlay: false,
-    
     // 用户状态
     isLoggedIn: false,
     isBound: false,
@@ -49,7 +46,6 @@ Page({
       
       // 如果已登录且已绑定，直接跳转到首页
       if (isBound) {
-        console.log('用户已登录且已绑定，自动跳转到首页');
         setTimeout(() => {
           this.goToHome();
         }, 500);
@@ -98,8 +94,6 @@ Page({
           
           // 检测到被其他用户绑定
           if (wasNotBound && latestUserInfo.relationStatus === 'paired' && latestUserInfo.partnerId) {
-            console.log('检测到被其他用户绑定');
-            
             // 更新本地数据
             wx.setStorageSync('userInfo', latestUserInfo);
             app.globalData.userInfo = latestUserInfo;
@@ -127,41 +121,31 @@ Page({
 
   // 点击"我的小档案"
   onTapProfile() {
-    console.log('[onTapProfile] 点击我的小档案');
-    
     const { isLoggedIn } = this.data;
     
     if (!isLoggedIn) {
       // 未登录，触发登录
       this.onGetUserProfile();
-    } else {
-      // 已登录，可以展示更多信息或跳转到个人页面
-      console.log('已登录，userInfo:', this.data.userInfo);
     }
   },
 
   // 点击主按钮（去绑定/进入首页）
   onTapBind() {
-    console.log('[onTapBind] 点击主按钮');
-    
     const { isLoggedIn, isBound } = this.data;
     
     // 场景1：未登录 -> 先登录再跳转
     if (!isLoggedIn) {
-      console.log('未登录，触发登录流程');
       this.onGetUserProfile();
       return;
     }
     
     // 场景2：已登录但未绑定 -> 跳转到设置页面
     if (!isBound) {
-      console.log('已登录未绑定，跳转到设置页面');
       this.goToSettings();
       return;
     }
     
     // 场景3：已登录且已绑定 -> 进入首页
-    console.log('已登录已绑定，进入首页');
     this.goToHome();
   },
 
@@ -176,7 +160,6 @@ Page({
     wx.getUserProfile({
       desc: '用于完善用户资料',
       success: (res) => {
-        console.log('获取用户信息成功：', res.userInfo);
         this.doLogin(res.userInfo);
       },
       fail: (err) => {
@@ -207,7 +190,6 @@ Page({
       },
       success: (res) => {
         wx.hideLoading();
-        console.log('登录云函数返回：', res);
         
         if (res.result && res.result.success) {
           const userData = res.result.data.userInfo;
@@ -314,7 +296,6 @@ Page({
 
   // 点击用户协议
   onTapUserAgreement() {
-    console.log('[onTapUserAgreement] 点击用户协议');
     wx.showToast({
       title: '用户协议（开发中）',
       icon: 'none'
@@ -323,7 +304,6 @@ Page({
 
   // 点击隐私政策
   onTapPrivacy() {
-    console.log('[onTapPrivacy] 点击隐私政策');
     wx.showToast({
       title: '隐私政策（开发中）',
       icon: 'none'

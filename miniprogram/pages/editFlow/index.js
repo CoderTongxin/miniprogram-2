@@ -115,8 +115,6 @@ Page({
         flowId: id
       },
       success: (res) => {
-        console.log('获取电子流详情成功：', res);
-        
         if (res.result && res.result.success) {
           const flow = res.result.data;
           
@@ -292,9 +290,7 @@ Page({
     wx.cloud.callFunction({
       name: 'flowManager',
       data: callData,
-      success: (res) => {
-        console.log('提交成功：', res);
-        
+      success: (res) => {     
         wx.hideLoading();
         
         if (res.result && res.result.success) {

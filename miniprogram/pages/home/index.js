@@ -130,8 +130,6 @@ Page({
         searchKeyword: searchKeyword
       },
       success: (res) => {
-        console.log('获取电子流列表成功：', res);
-        
         if (res.result && res.result.success) {
           const { data, pagination } = res.result;
           this.setData({

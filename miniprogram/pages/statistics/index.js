@@ -150,8 +150,6 @@ Page({
         month: selectedMonth
       },
       success: (res) => {
-        console.log('获取统计数据成功：', res);
-        
         if (res.result && res.result.success) {
           const data = res.result.data;
           

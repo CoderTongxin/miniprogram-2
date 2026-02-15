@@ -9,67 +9,7 @@ Page({
     canEdit: false, // 是否可以编辑
     showRejectDialog: false,
     rejectReason: '',
-    currentUserId: '',
-    // 以下模拟数据仅供参考，已不再使用
-    mockDataMap: {
-      '1': {
-        id: 1,
-        applicantId: 'user2',
-        applicantName: '小红',
-        applicantAvatar: 'https://via.placeholder.com/100',
-        approverId: 'user1',
-        approverName: '谢熊猫',
-        approverAvatar: 'https://via.placeholder.com/60',
-        content: '需要参加公司年会，想申请购买一套得体的礼服。这是一个比较正式的场合，需要穿着合适的服装出席，希望能够给同事和领导留下好印象。',
-        amount: '1,580.00',
-        type: 'other',
-        typeText: '其他',
-        status: 'pending',
-        statusText: '待审批',
-        createTime: '2024-12-18 10:30',
-        approveTime: '',
-        rejectReason: '',
-        approveComment: ''
-      },
-      '4': {
-        id: 4,
-        applicantId: 'user1',
-        applicantName: '谢熊猫（我）',
-        applicantAvatar: 'https://via.placeholder.com/100',
-        approverId: 'user2',
-        approverName: '小红',
-        approverAvatar: 'https://via.placeholder.com/60',
-        content: '周末想去周边自驾游，租车费用和住宿费。计划租车两天，预算800元，住宿一晚大约400元。可以好好放松一下，呼吸新鲜空气。',
-        amount: '1,200.00',
-        type: 'travel',
-        typeText: '出行',
-        status: 'completed',
-        statusText: '已完成',
-        createTime: '2024-12-15 14:20',
-        approveTime: '2024-12-15 16:20',
-        rejectReason: '',
-        approveComment: '好久没出去玩了，这个计划不错！周末天气预报也很好，可以好好放松一下。记得带好相机，多拍点照片。'
-      },
-      '5': {
-        id: 5,
-        applicantId: 'user1',
-        applicantName: '谢熊猫（我）',
-        applicantAvatar: 'https://via.placeholder.com/100',
-        approverId: 'user2',
-        approverName: '小红',
-        approverAvatar: 'https://via.placeholder.com/60',
-        content: '想报名参加专业培训课程，提升职业技能。这个课程是行业内比较权威的认证培训，对职业发展很有帮助。课程为期3个月，包含线上学习和实践项目。',
-        amount: '3,200.00',
-        type: 'other',
-        typeText: '其他',
-        status: 'rejected',
-        statusText: '已驳回',
-        createTime: '2024-12-14 10:30',
-        approveTime: '2024-12-14 15:45',
-        rejectReason: '培训费用有点高，建议先看看公司是否有相关的培训资源或者报销政策。如果公司能够承担部分费用，我们再考虑申请剩余部分。另外，可以先试听一下免费课程，确认课程质量后再做决定。',
-        approveComment: ''
-      }
-    }
+    currentUserId: ''
   },
 
   onLoad(options) {
@@ -125,8 +65,6 @@ Page({
         flowId: flowId
       },
       success: (res) => {
-        console.log('获取电子流详情成功：', res);
-        
         if (res.result && res.result.success) {
           const flowData = res.result.data;
           const { currentUserId } = this.data;
@@ -196,7 +134,6 @@ Page({
               approveComment: '' // 可以添加审批备注输入
             },
             success: (res) => {
-              console.log('审批通过成功：', res);
               wx.hideLoading();
 
               if (res.result && res.result.success) {
@@ -287,7 +224,6 @@ Page({
         rejectReason: rejectReason.trim()
       },
       success: (res) => {
-        console.log('驳回成功：', res);
         wx.hideLoading();
 
         if (res.result && res.result.success) {

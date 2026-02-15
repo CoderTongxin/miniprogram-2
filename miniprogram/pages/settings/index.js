@@ -73,8 +73,6 @@ Page({
           
           // 检测到被其他用户绑定（从未绑定变为已绑定）
           if (wasNotBound && latestUserInfo.relationStatus === 'paired' && latestUserInfo.partnerId) {
-            console.log('检测到被其他用户绑定');
-            
             // 更新页面状态
             this.setData({ userInfo: latestUserInfo });
             
@@ -121,8 +119,6 @@ Page({
         action: 'generateCode'
       },
       success: (res) => {
-        console.log('生成绑定码返回：', res);
-        
         if (res.result && res.result.success) {
           const { bindCode, expireTime } = res.result.data;
           const expireDate = new Date(expireTime);
@@ -213,8 +209,6 @@ Page({
         bindCode: inputCode
       },
       success: (res) => {
-        console.log('绑定伴侣返回：', res);
-        
         if (res.result && res.result.success) {
           const partnerName = res.result.data.partner.nickName;
           
@@ -319,7 +313,6 @@ Page({
         action: 'unbind'
       },
       success: (res) => {
-        console.log('解除绑定返回：', res);
         wx.hideLoading();
         
         if (res.result && res.result.success) {
