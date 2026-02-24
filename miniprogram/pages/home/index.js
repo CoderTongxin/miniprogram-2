@@ -83,7 +83,7 @@ Page({
         isGuest: true,
         userInfo: {
           nickName: '游客',
-          avatarUrl: 'https://via.placeholder.com/100/FFB8D5/FFFFFF?text=Guest'
+          avatarUrl: '/images/default_logo.png'
         }
       });
       return false;
@@ -104,7 +104,7 @@ Page({
       {
         id: 'demo1',
         applicantName: '示例用户',
-        applicantAvatar: 'https://via.placeholder.com/100/FFB8D5/FFFFFF?text=Demo',
+        applicantAvatar: '/images/default_logo.png',
         content: '这是一个示例电子流申请，登录后可以创建真实的申请',
         amount: '100.00',
         type: 'other',
@@ -116,7 +116,7 @@ Page({
       {
         id: 'demo2',
         applicantName: '示例用户',
-        applicantAvatar: 'https://via.placeholder.com/100/FFB8D5/FFFFFF?text=Demo',
+        applicantAvatar: '/images/default_logo.png',
         content: '绑定伴侣后，你们可以互相审批电子流申请',
         amount: '200.00',
         type: 'funds',

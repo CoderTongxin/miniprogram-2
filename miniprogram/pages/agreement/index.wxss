@@ -1,4 +1,4 @@
-/* pages/user-agreement/index.wxss */
+/* pages/agreement/index.wxss */
 .policy-page {
   min-height: 100vh;
   background: linear-gradient(180deg, #FCE6EC 0%, #FEECF0 100%);
@@ -11,6 +11,25 @@
   border-radius: 32rpx;
   padding: 40rpx 32rpx;
   box-shadow: 0 8rpx 32rpx rgba(255,125,165,0.15);
+}
+
+/* Tab 样式调整 */
+.policy-container ::deep .t-tabs {
+  margin-bottom: 32rpx;
+}
+
+.policy-container ::deep .t-tabs__item {
+  font-size: 30rpx;
+  font-weight: 700;
+  color: rgba(134,59,78,0.60);
+}
+
+.policy-container ::deep .t-tabs__item--active {
+  color: #F86585;
+}
+
+.policy-container ::deep .t-tabs__track {
+  background-color: #F86585;
 }
 
 .policy-header {

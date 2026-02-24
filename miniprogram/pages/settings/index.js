@@ -391,7 +391,7 @@ Page({
   // 关于我们
   onAbout() {
     wx.showModal({
-      title: 'You and Me',
+      title: '准了吗',
       content: '情侣电子流审批小程序\n版本：1.0.0\n\n让情侣间的消费管理更简单、更透明',
       showCancel: false
     });

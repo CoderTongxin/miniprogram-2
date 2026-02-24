@@ -6,14 +6,13 @@
     "pages/flow-detail/index",
     "pages/statistics/index",
     "pages/settings/index",
-    "pages/privacy/index",
-    "pages/user-agreement/index"
+    "pages/agreement/index"
   ],
   "window": {
     "backgroundColor": "#F5F5F5",
     "backgroundTextStyle": "light",
     "navigationBarBackgroundColor": "#FFFFFF",
-    "navigationBarTitleText": "You and Me",
+    "navigationBarTitleText": "准了吗",
     "navigationBarTextStyle": "black"
   },
   "sitemapLocation": "sitemap.json",

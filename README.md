@@ -1,4 +1,4 @@
-# You and Me - 情侣电子流审批小程序
+# 准了吗 - 情侣电子流审批小程序
 
 <div align="center">
   <h3>💑 让情侣间的消费管理更简单、更透明</h3>
@@ -7,7 +7,7 @@
 
 ## 📱 项目简介
 
-You and Me 是一个专为情侣设计的电子流审批小程序，帮助情侣管理日常消费申请、审批流程和支出统计。采用微信云开发技术，使用 TDesign 组件库构建，提供美观流畅的用户体验。
+准了吗 是一个专为情侣设计的电子流审批小程序，帮助情侣管理日常消费申请、审批流程和支出统计。采用微信云开发技术，使用 TDesign 组件库构建，提供美观流畅的用户体验。
 
 ## ✨ 核心功能
 
@@ -253,5 +253,5 @@ MIT License
 
 ---<div align="center">
   <p>Made with ❤️ for couples</p>
-  <p>© 2024 You and Me. All rights reserved.</p>
+  <p>© 2024 准了吗. All rights reserved.</p>
 </div>

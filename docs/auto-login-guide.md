@@ -298,7 +298,7 @@ app.globalData.partnerId = userInfo.partnerId;
 登录页 `index.json`：
 ```json
 {
-  "navigationBarTitleText": "You and Me"
+  "navigationBarTitleText": "准了吗"
 }
 ```
 

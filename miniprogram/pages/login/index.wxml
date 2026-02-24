@@ -89,12 +89,10 @@
         <checkbox-group bindchange="onPrivacyChange">
           <label class="privacy-checkbox-label">
             <checkbox value="agree" checked="{{privacyAgreed}}" color="#F86585" />
-            <text class="privacy-text">我已阅读并同意</text>
-            <text class="privacy-link" catchtap="onTapUserAgreement">《用户协议》</text>
-            <text class="privacy-text">和</text>
-            <text class="privacy-link" catchtap="onTapPrivacy">《隐私政策》</text>
           </label>
         </checkbox-group>
+        <text class="privacy-text">我已阅读并同意</text>
+            <text class="privacy-link" catchtap="onTapUserAgreement">《用户协议》《隐私政策》</text>
       </view>
 
       <!-- 主按钮 -->

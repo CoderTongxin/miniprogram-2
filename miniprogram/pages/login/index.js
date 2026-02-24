@@ -128,8 +128,11 @@ Page({
 
   // 隐私协议复选框变化
   onPrivacyChange(e) {
+    // e.detail.value 是一个数组，包含所有选中的 checkbox 的 value
+    // 如果数组长度大于0，说明已勾选；否则未勾选
+    const isAgreed = e.detail.value.length > 0;
     this.setData({
-      privacyAgreed: e.detail.value
+      privacyAgreed: isAgreed
     });
   },
 
@@ -331,14 +334,14 @@ Page({
   // 点击用户协议
   onTapUserAgreement() {
     wx.navigateTo({
-      url: '/pages/user-agreement/index'
+      url: '/pages/agreement/index?tab=agreement'
     });
   },
 
   // 点击隐私政策
   onTapPrivacy() {
     wx.navigateTo({
-      url: '/pages/privacy/index'
+      url: '/pages/agreement/index?tab=privacy'
     });
   }
 });
