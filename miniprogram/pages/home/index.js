@@ -56,9 +56,13 @@ Page({
 
   // 下拉刷新
   onPullDownRefresh() {
+    if (this.data.isGuest) {
+      wx.stopPullDownRefresh();
+      return;
+    }
     this.resetAndLoadList();
     this.calculateMonthlyExpense();
-    this.loadTodoCount(); // 刷新待办数量
+    this.loadTodoCount();
     setTimeout(() => {
       wx.stopPullDownRefresh();
     }, 1000);
@@ -66,6 +70,7 @@ Page({
 
   // 上拉加载更多
   onReachBottom() {
+    if (this.data.isGuest) return;
     if (!this.data.hasMore || this.data.loadingMore) {
       return;
     }
@@ -352,16 +357,17 @@ Page({
     this.setData({
       activeTab: newTab,
       currentFilter: 'all',
-      searchKeyword: '' // 切换 Tab 时清空搜索
+      searchKeyword: ''
     });
     
-    // 保存当前状态
+    // 游客模式下只切换 Tab UI，不触发云函数刷新
+    if (this.data.isGuest) return;
+    
     this.saveTabState();
     
-    // 延迟加载，让 Tab 切换动画更流畅
     setTimeout(() => {
       this.resetAndLoadList();
-      this.loadTodoCount(); // 切换 Tab 时也刷新待办数量
+      this.loadTodoCount();
     }, 100);
   },
 
@@ -370,17 +376,17 @@ Page({
     const filter = e.currentTarget.dataset.filter;
     
     if (filter === this.data.currentFilter) {
-      return; // 避免重复点击
+      return;
     }
     
     this.setData({
       currentFilter: filter
     });
     
-    // 保存当前状态
+    if (this.data.isGuest) return;
+    
     this.saveTabState();
     
-    // 延迟加载，让筛选动画更流畅
     setTimeout(() => {
       this.resetAndLoadList();
     }, 100);
@@ -407,9 +413,8 @@ Page({
 
   // 搜索框失焦
   onSearchBlur() {
-    // 失焦时如果有内容，自动执行搜索
+    if (this.data.isGuest) return;
     if (this.data.searchKeyword && this.data.searchKeyword.trim()) {
-      // 延迟执行，避免与点击事件冲突
       setTimeout(() => {
         this.resetAndLoadList();
       }, 200);
@@ -418,8 +423,9 @@ Page({
 
   // 执行搜索
   onSearch() {
+    if (this.data.isGuest) return;
     if (this.data.searchKeyword && this.data.searchKeyword.trim()) {
-      this.saveTabState(); // 保存搜索状态
+      this.saveTabState();
       this.resetAndLoadList();
     }
   },
@@ -429,31 +435,32 @@ Page({
     this.setData({
       searchKeyword: ''
     });
-    this.saveTabState(); // 保存清空后的状态
+    if (this.data.isGuest) return;
+    this.saveTabState();
     this.resetAndLoadList();
   },
 
   // 跳转到详情页
   goToDetail(e) {
-    // 游客模式下的示例数据不能查看详情
-    if (this.data.isGuest) {
-      this.requireLogin();
-      return;
-    }
-
     const id = e.currentTarget.dataset.id;
+    const isGuest = this.data.isGuest;
     
-    // 保存当前状态，以便返回时恢复
-    this.saveTabState();
-    wx.setStorageSync('shouldRestoreHomeTab', true);
+    if (!isGuest) {
+      this.saveTabState();
+      wx.setStorageSync('shouldRestoreHomeTab', true);
+    }
     
     wx.showLoading({
       title: '加载中...',
       mask: true
     });
     
+    const url = isGuest
+      ? `/pages/flow-detail/index?demo=1`
+      : `/pages/flow-detail/index?id=${id}`;
+    
     wx.navigateTo({
-      url: `/pages/flow-detail/index?id=${id}`,
+      url,
       success: () => {
         setTimeout(() => {
           wx.hideLoading();
@@ -465,19 +472,21 @@ Page({
     });
   },
 
-  // 跳转到创建页（需要登录）
+  // 跳转到创建页
   goToCreate() {
-    if (!this.requireLogin()) {
-      return;
-    }
-
+    const isGuest = this.data.isGuest;
+    
     wx.showLoading({
       title: '加载中...',
       mask: true
     });
     
+    const url = isGuest
+      ? '/pages/editFlow/index?demo=1'
+      : '/pages/editFlow/index';
+    
     wx.navigateTo({
-      url: '/pages/editFlow/index',
+      url,
       success: () => {
         setTimeout(() => {
           wx.hideLoading();
@@ -489,12 +498,8 @@ Page({
     });
   },
 
-  // 跳转到统计页（需要登录）
+  // 跳转到统计页
   goToStatistics() {
-    if (!this.requireLogin()) {
-      return;
-    }
-
     wx.showLoading({
       title: '加载中...',
       mask: true

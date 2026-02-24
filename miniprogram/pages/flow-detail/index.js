@@ -5,20 +5,26 @@ Page({
   data: {
     flowId: null,
     flowData: {},
-    canApprove: false, // 是否可以审批
-    canEdit: false, // 是否可以编辑
+    canApprove: false,
+    canEdit: false,
     showRejectDialog: false,
     rejectReason: '',
-    currentUserId: ''
+    currentUserId: '',
+    isDemo: false
   },
 
   onLoad(options) {
+    // 游客 demo 模式
+    if (options.demo) {
+      this.loadDemoData();
+      return;
+    }
+
     wx.showLoading({
       title: '加载中...',
       mask: true
     });
     
-    // 获取当前用户信息
     const userInfo = wx.getStorageSync('userInfo');
     if (!userInfo || !userInfo._openid) {
       wx.hideLoading();
@@ -54,6 +60,31 @@ Page({
         }
       });
     }
+  },
+
+  // 加载游客 demo 示例数据
+  loadDemoData() {
+    this.setData({
+      isDemo: true,
+      canApprove: false,
+      canEdit: false,
+      flowData: {
+        _id: 'demo',
+        content: '示例：本月家庭聚餐费用报销申请，包含餐饮、交通等费用',
+        amount: '288.00',
+        type: 'funds',
+        typeText: '拨款',
+        status: 'pending',
+        statusText: '待审批',
+        applicantName: '示例用户',
+        applicantAvatar: '/images/default_logo.png',
+        approverName: '示例伴侣',
+        approverAvatar: '/images/default_logo.png',
+        createTime: '2024-12-20 10:00',
+        updateTime: '2024-12-20 10:00',
+        rejectReason: ''
+      }
+    });
   },
 
   // 加载电子流数据
@@ -113,8 +144,33 @@ Page({
     });
   },
 
+  // 游客横幅点击
+  onGuestBannerTap() {
+    wx.navigateTo({ url: '/pages/login/index' });
+  },
+
+  // 游客操作拦截
+  requireLoginForAction() {
+    if (this.data.isDemo) {
+      wx.showModal({
+        title: '需要登录',
+        content: '登录后即可进行审批操作，是否前往登录？',
+        confirmText: '去登录',
+        cancelText: '暂不',
+        success: (res) => {
+          if (res.confirm) {
+            wx.navigateTo({ url: '/pages/login/index' });
+          }
+        }
+      });
+      return false;
+    }
+    return true;
+  },
+
   // 通过申请
   onApprove() {
+    if (!this.requireLoginForAction()) return;
     wx.showModal({
       title: '确认通过',
       content: '确定要通过此申请吗？',
@@ -178,6 +234,7 @@ Page({
 
   // 点击驳回按钮
   onReject() {
+    if (!this.requireLoginForAction()) return;
     this.setData({
       showRejectDialog: true,
       rejectReason: ''
@@ -273,6 +330,7 @@ Page({
 
   // 重新编辑
   onEdit() {
+    if (!this.requireLoginForAction()) return;
     const { flowId } = this.data;
     wx.redirectTo({
       url: `/pages/editFlow/index?id=${flowId}`

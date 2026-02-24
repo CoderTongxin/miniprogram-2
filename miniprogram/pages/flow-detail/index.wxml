@@ -1,6 +1,13 @@
 <!-- 电子流详情 - 设计系统重构版 -->
 <view class="ds-page ds-page--with-decor ds-safe-top ds-safe-bottom">
   
+  <!-- 游客体验提示 -->
+  <view wx:if="{{isDemo}}" class="guest-banner" bindtap="onGuestBannerTap">
+    <text class="guest-banner__icon">👀</text>
+    <text class="guest-banner__text">游客体验模式 · 登录后可进行审批操作</text>
+    <text class="guest-banner__action">去登录 ›</text>
+  </view>
+
   <!-- 成功/驳回横幅 -->
   <view wx:if="{{flowData.status === 'completed'}}" class="status-banner success">
     <text class="banner-icon">✓</text>

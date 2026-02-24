@@ -1,6 +1,12 @@
 <!-- 数据统计 - 设计系统重构版 -->
 <view class="ds-page ds-page--with-decor ds-safe-top ds-safe-bottom">
   
+  <!-- 游客体验提示 -->
+  <view wx:if="{{isDemo}}" class="guest-banner">
+    <text class="guest-banner__icon">👀</text>
+    <text class="guest-banner__text">游客体验模式 · 以下为示例统计数据</text>
+  </view>
+
   <!-- 头部统计卡片 -->
   <view class="ds-main">
     <view class="ds-card ds-card--strong header-stats">

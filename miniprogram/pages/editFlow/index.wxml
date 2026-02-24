@@ -1,6 +1,13 @@
 <!-- 创建/编辑电子流 - 设计系统重构版 -->
 <view class="ds-page ds-page--with-decor ds-safe-top ds-safe-bottom">
   
+  <!-- 游客体验提示 -->
+  <view wx:if="{{isDemo}}" class="guest-banner" bindtap="onGuestBannerTap">
+    <text class="guest-banner__icon">👀</text>
+    <text class="guest-banner__text">游客体验模式 · 登录后可提交真实申请</text>
+    <text class="guest-banner__action">去登录 ›</text>
+  </view>
+
   <view class="ds-main form-container">
     
     <!-- 申请内容 -->

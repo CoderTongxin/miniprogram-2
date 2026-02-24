@@ -3,50 +3,26 @@ import Toast from 'tdesign-miniprogram/toast/index';
 
 Page({
   data: {
-    periodType: 'month', // year 或 month
+    periodType: 'month',
     selectedYear: 0,
     selectedMonth: 0,
     currentPeriodText: '',
+    isDemo: false,
     
-    // 年份和月份列表
     yearList: [],
     monthList: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
     
-    // 统计数据
     totalAmount: '0.00',
     totalCount: 0,
     approvedCount: 0,
     approveRate: 0,
     
-    // 分类统计
     typeStats: [
-      {
-        type: 'funds',
-        name: '拨款',
-        amount: '0.00',
-        percentage: 0,
-        color: '#0052D9',
-        lightColor: '#E0EDFF'
-      },
-      {
-        type: 'travel',
-        name: '出行',
-        amount: '0.00',
-        percentage: 0,
-        color: '#E37318',
-        lightColor: '#FFF4E5'
-      },
-      {
-        type: 'other',
-        name: '其他',
-        amount: '0.00',
-        percentage: 0,
-        color: '#666666',
-        lightColor: '#F2F3F5'
-      }
+      { type: 'funds', name: '拨款', amount: '0.00', percentage: 0, color: '#0052D9', lightColor: '#E0EDFF' },
+      { type: 'travel', name: '出行', amount: '0.00', percentage: 0, color: '#E37318', lightColor: '#FFF4E5' },
+      { type: 'other', name: '其他', amount: '0.00', percentage: 0, color: '#666666', lightColor: '#F2F3F5' }
     ],
     
-    // 趋势数据
     trendData: [
       { period: '12月', amount: '0.00', change: 0 },
       { period: '11月', amount: '0.00', change: 0 },
@@ -55,7 +31,6 @@ Page({
       { period: '8月', amount: '0.00', change: 0 }
     ],
     
-    // 统计摘要
     avgDaily: '0',
     maxSingle: '0',
     mostFrequent: '',
@@ -63,24 +38,57 @@ Page({
   },
 
   onLoad() {
-    // 初始化年份和月份
     const now = new Date()
     const currentYear = now.getFullYear()
     const currentMonth = now.getMonth() + 1
     
-    // 生成年份列表（当前年份及前3年）
     const yearList = []
     for (let i = 0; i < 4; i++) {
       yearList.unshift(currentYear - i)
     }
+
+    // 判断是否为游客模式
+    const userInfo = wx.getStorageSync('userInfo');
+    const isGuest = !userInfo || !userInfo._openid;
     
     this.setData({
+      isDemo: isGuest,
       selectedYear: currentYear,
       selectedMonth: currentMonth,
       yearList: yearList
     }, () => {
       this.updatePeriodText()
-      this.loadStatistics()
+      if (isGuest) {
+        this.loadDemoStatistics();
+      } else {
+        this.loadStatistics();
+      }
+    });
+  },
+
+  // 加载游客 demo 统计数据
+  loadDemoStatistics() {
+    this.setData({
+      totalAmount: '1,580.00',
+      totalCount: 8,
+      approvedCount: 6,
+      rejectedCount: 1,
+      approveRate: 75,
+      typeStats: [
+        { type: 'funds', name: '拨款', amount: '880.00', percentage: 55.7, color: '#0052D9', lightColor: '#E0EDFF' },
+        { type: 'travel', name: '出行', amount: '480.00', percentage: 30.4, color: '#E37318', lightColor: '#FFF4E5' },
+        { type: 'other', name: '其他', amount: '220.00', percentage: 13.9, color: '#666666', lightColor: '#F2F3F5' }
+      ],
+      trendData: [
+        { period: '12月', amount: '1,580.00', change: 12 },
+        { period: '11月', amount: '1,410.00', change: -5 },
+        { period: '10月', amount: '1,480.00', change: 8 },
+        { period: '9月', amount: '1,370.00', change: 3 },
+        { period: '8月', amount: '1,330.00', change: 0 }
+      ],
+      avgDaily: '52.67',
+      maxSingle: '580.00',
+      mostFrequent: '拨款'
     });
   },
 
@@ -101,33 +109,39 @@ Page({
   // 切换年度/月度
   onPeriodTypeChange(e) {
     const type = e.currentTarget.dataset.type;
-    this.setData({
-      periodType: type
-    }, () => {
+    this.setData({ periodType: type }, () => {
       this.updatePeriodText();
-      this.loadStatistics();
+      if (this.data.isDemo) {
+        this.loadDemoStatistics();
+      } else {
+        this.loadStatistics();
+      }
     });
   },
 
   // 选择年份
   onYearChange(e) {
     const year = e.currentTarget.dataset.year;
-    this.setData({
-      selectedYear: year
-    }, () => {
+    this.setData({ selectedYear: year }, () => {
       this.updatePeriodText();
-      this.loadStatistics();
+      if (this.data.isDemo) {
+        this.loadDemoStatistics();
+      } else {
+        this.loadStatistics();
+      }
     });
   },
 
   // 选择月份
   onMonthChange(e) {
     const month = e.currentTarget.dataset.month;
-    this.setData({
-      selectedMonth: month
-    }, () => {
+    this.setData({ selectedMonth: month }, () => {
       this.updatePeriodText();
-      this.loadStatistics();
+      if (this.data.isDemo) {
+        this.loadDemoStatistics();
+      } else {
+        this.loadStatistics();
+      }
     });
   },
 

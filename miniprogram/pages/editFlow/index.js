@@ -14,30 +14,52 @@ Page({
       avatar: '',
       role: '默认审批人'
     },
-    flowId: null, // 如果是编辑模式，会有 flowId
+    flowId: null,
     isEditMode: false,
+    isDemo: false,
     userInfo: null,
     partnerInfo: null
   },
 
   onLoad(options) {
+    // 游客 demo 模式
+    if (options.demo) {
+      this.loadDemoData();
+      return;
+    }
+
     wx.showLoading({
       title: '加载中...',
       mask: true
     });
     
-    // 获取用户信息和伴侣信息
     this.loadUserInfo().then(() => {
-      // 如果有 id 参数，表示是编辑模式
       if (options.id) {
         this.setData({
           flowId: options.id,
           isEditMode: true
         });
-        // 加载电子流数据
         this.loadFlowData(options.id);
       } else {
         wx.hideLoading();
+      }
+    });
+  },
+
+  // 加载游客 demo 示例数据
+  loadDemoData() {
+    this.setData({
+      isDemo: true,
+      formData: {
+        content: '示例：本月家庭聚餐费用报销申请',
+        amount: '288.00',
+        type: 'funds'
+      },
+      isOtherType: false,
+      approver: {
+        name: '示例伴侣',
+        avatar: '/images/default_logo.png',
+        role: '默认审批人'
       }
     });
   },
@@ -193,6 +215,11 @@ Page({
     });
   },
 
+  // 游客横幅点击
+  onGuestBannerTap() {
+    wx.navigateTo({ url: '/pages/login/index' });
+  },
+
   // 取消
   onCancel() {
     wx.showModal({
@@ -208,6 +235,22 @@ Page({
 
   // 提交
   onSubmit() {
+    // 游客 demo 模式，提示登录
+    if (this.data.isDemo) {
+      wx.showModal({
+        title: '需要登录',
+        content: '登录后即可创建真实的电子流申请，是否前往登录？',
+        confirmText: '去登录',
+        cancelText: '暂不',
+        success: (res) => {
+          if (res.confirm) {
+            wx.navigateTo({ url: '/pages/login/index' });
+          }
+        }
+      });
+      return;
+    }
+
     const { content, amount, type } = this.data.formData;
     const { isOtherType, isEditMode, flowId } = this.data;
 

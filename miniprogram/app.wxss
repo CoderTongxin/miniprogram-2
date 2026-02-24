@@ -590,3 +590,32 @@ button::after {
 .pb-12 { padding-bottom: 24rpx; }
 .pb-16 { padding-bottom: 32rpx; }
 .pb-24 { padding-bottom: 48rpx; }
+
+/* ==================== 游客体验横幅 ==================== */
+.guest-banner {
+  display: flex;
+  align-items: center;
+  background: linear-gradient(135deg, #FFF3E0 0%, #FFE0B2 100%);
+  border-bottom: 1rpx solid rgba(230, 162, 60, 0.3);
+  padding: 20rpx 32rpx;
+  gap: 12rpx;
+}
+
+.guest-banner__icon {
+  font-size: 30rpx;
+  flex-shrink: 0;
+}
+
+.guest-banner__text {
+  flex: 1;
+  font-size: 24rpx;
+  color: #8D5B00;
+  line-height: 1.4;
+}
+
+.guest-banner__action {
+  font-size: 24rpx;
+  color: #F86585;
+  font-weight: 600;
+  flex-shrink: 0;
+}
