@@ -78,7 +78,7 @@
         <text class="ds-formItem__label">审批人</text>
         <view class="ds-card__content approver-card">
           <view class="ds-row">
-            <image class="approver-avatar" src="{{approver.avatar}}" mode="aspectFill"></image>
+            <image class="approver-avatar" src="{{approver.avatar || '/images/default_logo.png'}}" mode="aspectFill"></image>
             <view class="approver-info">
               <text class="ds-text-body">{{approver.name}}</text>
               <text class="ds-text-tip">默认审批人</text>

@@ -7,15 +7,16 @@ Page({
     // 用户状态
     isLoggedIn: false,
     isBound: false,
+    isSettingProfile: false, // 登录后设置头像昵称状态
     userInfo: null,
     
     // 按钮文案（动态计算）
-    buttonText: '去绑定',
+    buttonText: '去登录',
     
     // 隐私协议同意状态
     privacyAgreed: false,
     
-    // 用户输入的昵称和头像
+    // 用户输入的昵称和头像（登录后设置资料时使用）
     nickName: '',
     avatarUrl: ''
   },
@@ -59,12 +60,16 @@ Page({
         return;
       }
       
+      // 检查是否需要设置资料（头像或昵称未设置）
+      const needsProfileSetup = !userInfo.avatarUrl || !userInfo.nickName || userInfo.nickName === '用户';
+      
       // 已登录但未绑定，显示登录页面
       this.setData({
         isLoggedIn: true,
         isBound: false,
+        isSettingProfile: needsProfileSetup,
         userInfo: userInfo,
-        buttonText: '去绑定'
+        buttonText: needsProfileSetup ? '完成设置' : '去绑定'
       });
       
       setTimeout(() => {
@@ -75,7 +80,8 @@ Page({
       this.setData({
         isLoggedIn: false,
         isBound: false,
-        buttonText: '去登录绑定'
+        isSettingProfile: false,
+        buttonText: '去登录'
       });
       
       setTimeout(() => {
@@ -163,13 +169,12 @@ Page({
     }
   },
 
-  // 点击主按钮（去绑定/进入首页）
+  // 点击主按钮（去登录/完成设置/去绑定/进入首页）
   onTapBind() {
-    const { isLoggedIn, isBound, privacyAgreed, nickName, avatarUrl } = this.data;
+    const { isLoggedIn, isSettingProfile, isBound, privacyAgreed, nickName, avatarUrl } = this.data;
     
     // 场景1：未登录 -> 检查隐私协议并登录
     if (!isLoggedIn) {
-      // 检查是否同意隐私协议
       if (!privacyAgreed) {
         wx.showToast({
           title: '请先阅读并同意隐私政策',
@@ -178,8 +183,12 @@ Page({
         });
         return;
       }
-      
-      // 检查是否已填写昵称和头像
+      this.doLogin();
+      return;
+    }
+    
+    // 场景2：已登录但需要设置资料
+    if (isSettingProfile) {
       if (!nickName || !avatarUrl) {
         wx.showToast({
           title: '请先设置头像和昵称',
@@ -188,81 +197,105 @@ Page({
         });
         return;
       }
-      
-      this.doLogin({
-        nickName: nickName,
-        avatarUrl: avatarUrl
-      });
+      this.doCompleteProfile();
       return;
     }
     
-    // 场景2：已登录但未绑定 -> 跳转到设置页面
+    // 场景3：已登录但未绑定 -> 跳转到设置页面
     if (!isBound) {
       this.goToSettings();
       return;
     }
     
-    // 场景3：已登录且已绑定 -> 进入首页
+    // 场景4：已登录且已绑定 -> 进入首页
     this.goToHome();
   },
 
-  // 执行登录
-  doLogin(userInfo) {
-    wx.showLoading({
-      title: '登录中...',
-      mask: true
+  // 执行登录：先尝试获取微信昵称和头像，成功则直接使用
+  doLogin() {
+    wx.getUserProfile({
+      desc: '用于自动填入您的微信昵称和头像',
+      success: (profileRes) => {
+        console.log(profileRes.userInfo)
+        // 成功获取微信信息，带上昵称和头像登录
+        wx.showLoading({ title: '登录中...', mask: true });
+        this.performLogin({
+          nickName: profileRes.userInfo.nickName,
+          avatarUrl: profileRes.userInfo.avatarUrl
+        });
+      },
+      fail: () => {
+        // 用户拒绝或不支持（如微信已停用该接口），直接登录后手动填写
+        wx.showLoading({ title: '登录中...', mask: true });
+        this.performLogin(null);
+      }
     });
+  },
+
+  // 实际执行登录云函数调用
+  performLogin(wechatInfo) {
     wx.cloud.callFunction({
       name: 'userLogin',
       data: {
         action: 'login',
-        userInfo: {
-          nickName: userInfo.nickName,
-          avatarUrl: userInfo.avatarUrl,
-          gender: userInfo.gender,
-          country: userInfo.country,
-          province: userInfo.province,
-          city: userInfo.city
-        }
+        userInfo: wechatInfo   // 可能为 null（未获取到微信信息时）
       },
       success: (res) => {
         wx.hideLoading();
         
         if (res.result && res.result.success) {
           const userData = res.result.data.userInfo;
+          const isNewUser = res.result.data.isNewUser;
           const isBound = userData.relationStatus === 'paired' && userData.partnerId;
           
-          // 保存用户信息到本地和全局
           wx.setStorageSync('userInfo', userData);
           app.globalData.userInfo = userData;
           
-          // 保存伴侣ID
           if (userData.partnerId) {
             app.globalData.partnerId = userData.partnerId;
             wx.setStorageSync('partnerId', userData.partnerId);
           }
           
-          // 更新状态
-          this.setData({
-            isLoggedIn: true,
-            isBound: isBound,
-            userInfo: userData,
-            buttonText: isBound ? '进入首页' : '去绑定'
-          });
+          // 检查资料是否完善（云函数会自动用微信信息补全，此处兜底判断）
+          const needsProfileSetup = !userData.avatarUrl || !userData.nickName || userData.nickName === '用户';
           
-          wx.showToast({
-            title: res.result.data.isNewUser ? '注册成功' : '登录成功',
-            icon: 'success'
-          });
-
-          // 登录成功后，如果是从主按钮触发的，延迟跳转
-          setTimeout(() => {
-            if (isBound) {
-              this.goToHome();
-            } else {
-              this.goToSettings();
-            }
-          }, 1000);
+          if (needsProfileSetup) {
+            // 资料未完善，进入设置步骤并预填微信信息
+            this.setData({
+              isLoggedIn: true,
+              isSettingProfile: true,
+              isBound: false,
+              userInfo: userData,
+              buttonText: '完成设置',
+              nickName: wechatInfo ? wechatInfo.nickName : '',
+              avatarUrl: wechatInfo ? wechatInfo.avatarUrl : ''
+            });
+            wx.showToast({
+              title: '登录成功，请确认资料',
+              icon: 'none',
+              duration: 2000
+            });
+          } else {
+            // 资料已完整，直接跳转
+            this.setData({
+              isLoggedIn: true,
+              isSettingProfile: false,
+              isBound: isBound,
+              userInfo: userData,
+              buttonText: isBound ? '进入首页' : '去绑定'
+            });
+            wx.showToast({
+              title: isNewUser ? '注册成功' : '登录成功',
+              icon: 'success'
+            });
+            setTimeout(() => {
+              if (isBound) {
+                this.goToHome();
+              } else {
+                this.goToSettings();
+              }
+            }, 1000);
+          }
         } else {
           wx.showToast({
             title: res.result.message || '登录失败',
@@ -275,6 +308,70 @@ Page({
         console.error('登录失败：', err);
         wx.showToast({
           title: '登录失败，请重试',
+          icon: 'none'
+        });
+      }
+    });
+  },
+
+  // 完成资料设置（登录后设置头像和昵称）
+  doCompleteProfile() {
+    const { nickName, avatarUrl, userInfo } = this.data;
+    
+    wx.showLoading({
+      title: '保存中...',
+      mask: true
+    });
+    
+    wx.cloud.callFunction({
+      name: 'userLogin',
+      data: {
+        action: 'updateInfo',
+        userInfo: { nickName, avatarUrl }
+      },
+      success: (res) => {
+        wx.hideLoading();
+        
+        if (res.result && res.result.success) {
+          const updatedUserInfo = res.result.data ? res.result.data.userInfo : { ...userInfo, nickName, avatarUrl };
+          
+          wx.setStorageSync('userInfo', updatedUserInfo);
+          app.globalData.userInfo = updatedUserInfo;
+          
+          const isBound = updatedUserInfo.relationStatus === 'paired' && updatedUserInfo.partnerId;
+          
+          this.setData({
+            isSettingProfile: false,
+            userInfo: updatedUserInfo,
+            nickName: '',
+            avatarUrl: '',
+            buttonText: isBound ? '进入首页' : '去绑定'
+          });
+          
+          wx.showToast({
+            title: '资料设置成功',
+            icon: 'success'
+          });
+          
+          setTimeout(() => {
+            if (isBound) {
+              this.goToHome();
+            } else {
+              this.goToSettings();
+            }
+          }, 1000);
+        } else {
+          wx.showToast({
+            title: res.result.message || '保存失败',
+            icon: 'none'
+          });
+        }
+      },
+      fail: (err) => {
+        wx.hideLoading();
+        console.error('保存失败：', err);
+        wx.showToast({
+          title: '保存失败，请重试',
           icon: 'none'
         });
       }

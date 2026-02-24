@@ -26,8 +26,19 @@
         <view class="title-decor"></view>
       </view>
 
-      <!-- 未登录状态：显示头像昵称输入 -->
-      <view wx:if="{{!isLoggedIn}}" class="profile-edit-content">
+      <!-- 未登录状态：显示登录提示 -->
+      <view wx:if="{{!isLoggedIn}}" class="profile-not-logged">
+        <view class="avatar-placeholder">
+          <text class="avatar-hint">?</text>
+        </view>
+        <view class="profile-info">
+          <text class="profile-name">未登录</text>
+          <text class="profile-id">登录后可设置您的头像和昵称</text>
+        </view>
+      </view>
+
+      <!-- 已登录但需要设置资料状态：显示头像昵称输入 -->
+      <view wx:elif="{{isSettingProfile}}" class="profile-edit-content">
         <view class="avatar-edit-section">
           <button class="avatar-button" open-type="chooseAvatar" bindchooseavatar="onChooseAvatar">
             <view class="avatar-placeholder">
@@ -48,14 +59,14 @@
         </view>
       </view>
 
-      <!-- 已登录状态：显示用户信息 -->
+      <!-- 已登录且资料完整状态：显示用户信息 -->
       <view wx:else class="profile-content" bindtap="onTapProfile">
         <view class="avatar-placeholder">
-          <image wx:if="{{isLoggedIn && userInfo.avatarUrl}}" class="avatar-img" src="{{userInfo.avatarUrl}}" mode="aspectFill"></image>
+          <image wx:if="{{userInfo.avatarUrl}}" class="avatar-img" src="{{userInfo.avatarUrl}}" mode="aspectFill"></image>
         </view>
         <view class="profile-info">
-          <text class="profile-name">{{isLoggedIn ? userInfo.nickName : '未登录'}}</text>
-          <text class="profile-id">微信ID：{{isLoggedIn && userInfo._openid ? userInfo._openid.slice(0,3) + '...' : '---'}}</text>
+          <text class="profile-name">{{userInfo.nickName}}</text>
+          <text class="profile-id">微信ID：{{userInfo._openid ? userInfo._openid.slice(0,3) + '...' : '---'}}</text>
         </view>
         <view class="profile-right">
           <view class="pill-status">已登录</view>
@@ -89,10 +100,10 @@
         <checkbox-group bindchange="onPrivacyChange">
           <label class="privacy-checkbox-label">
             <checkbox value="agree" checked="{{privacyAgreed}}" color="#F86585" />
+                   <text class="privacy-text">我已阅读并同意</text>
+            <text class="privacy-link" catchtap="onTapUserAgreement">《用户协议》《隐私政策》</text>
           </label>
         </checkbox-group>
-        <text class="privacy-text">我已阅读并同意</text>
-            <text class="privacy-link" catchtap="onTapUserAgreement">《用户协议》《隐私政策》</text>
       </view>
 
       <!-- 主按钮 -->

@@ -269,7 +269,18 @@
   box-shadow: inset 0 1rpx 2rpx rgba(255,255,255,0.8), 0 4rpx 12rpx rgba(255,200,220,0.15);
 }
 
-/* 未登录状态：编辑模式 */
+/* 未登录状态：登录提示 */
+.profile-not-logged {
+  background: linear-gradient(180deg, #FFF1F6 0%, #FFF7FA 100%);
+  border-radius: 28rpx;
+  padding: 22rpx;
+  display: flex;
+  align-items: center;
+  box-shadow: inset 0 1rpx 2rpx rgba(255,255,255,0.8), 0 4rpx 12rpx rgba(255,200,220,0.15);
+  opacity: 0.75;
+}
+
+/* 登录后设置资料状态：编辑模式 */
 .profile-edit-content {
   background: linear-gradient(180deg, #FFF1F6 0%, #FFF7FA 100%);
   border-radius: 28rpx;

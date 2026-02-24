@@ -13,7 +13,7 @@
     <view class="ds-card ds-card--strong">
       <!-- 用户信息 -->
       <view class="user-section">
-        <image class="detail-avatar" src="{{flowData.applicantAvatar}}" mode="aspectFill"></image>
+        <image class="detail-avatar" src="{{flowData.applicantAvatar || '/images/default_logo.png'}}" mode="aspectFill"></image>
         <view class="user-info">
           <text class="ds-text-subtitle">{{flowData.applicantName}}</text>
           <text class="ds-text-desc">{{flowData.createTime}}</text>
@@ -49,7 +49,7 @@
       <view class="info-row">
         <text class="ds-text-desc">审批人</text>
         <view class="ds-row approver-row">
-          <image class="approver-avatar" src="{{flowData.approverAvatar}}" mode="aspectFill"></image>
+          <image class="approver-avatar" src="{{flowData.approverAvatar || '/images/default_logo.png'}}" mode="aspectFill"></image>
           <text class="ds-text-body">{{flowData.approverName}}</text>
         </view>
       </view>

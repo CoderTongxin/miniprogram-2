@@ -5,6 +5,10 @@
   margin-bottom: 32rpx !important;
 }
 
+.profile-display-row {
+  align-items: center;
+}
+
 .profile-avatar {
   width: 120rpx;
   height: 120rpx;
@@ -19,6 +23,84 @@
   display: flex;
   flex-direction: column;
   gap: 12rpx;
+}
+
+/* 编辑按钮 */
+.profile-edit-btn {
+  padding: 12rpx 24rpx;
+  background: linear-gradient(135deg, #FFF1F6 0%, #FFE4EE 100%);
+  border-radius: 999rpx;
+  flex-shrink: 0;
+}
+
+.profile-edit-text {
+  font-size: 26rpx;
+  color: #F86585;
+  font-weight: 600;
+}
+
+/* 编辑模式 */
+.profile-edit-area {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 24rpx;
+  padding: 8rpx 0;
+}
+
+.profile-edit-avatar-row {
+  position: relative;
+  display: inline-block;
+}
+
+.profile-avatar-btn {
+  background: transparent;
+  border: none;
+  padding: 0;
+  margin: 0;
+  line-height: 1;
+  position: relative;
+  display: block;
+  width: 120rpx;
+  height: 120rpx;
+  border-radius: 50%;
+  overflow: hidden;
+}
+
+.profile-avatar-btn::after {
+  border: none;
+}
+
+.profile-avatar-mask {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 44rpx;
+  background: rgba(0,0,0,0.35);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.profile-avatar-mask-text {
+  font-size: 22rpx;
+  color: #FFFFFF;
+}
+
+.profile-nickname-input {
+  width: 100%;
+  text-align: center;
+}
+
+.profile-edit-actions {
+  display: flex;
+  gap: 24rpx;
+  width: 100%;
+}
+
+.profile-action-btn {
+  flex: 1;
 }
 
 /* 状态行 */

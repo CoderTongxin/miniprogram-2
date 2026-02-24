@@ -68,33 +68,45 @@ async function handleLogin(openid, userInfo) {
   const now = new Date()
   
   if (userResult.data.length > 0) {
-    // 用户已存在，更新最后登录时间
+    // 用户已存在，更新登录时间；若资料未完善且传入了微信信息，一并补全
     const user = userResult.data[0]
     
+    const updateData = { updateTime: now }
+    
+    // 若昵称仍是默认值且此次登录带来了微信昵称，自动更新
+    if (userInfo && userInfo.nickName && (!user.nickName || user.nickName === '用户')) {
+      updateData.nickName = userInfo.nickName
+    }
+    // 若头像为空且此次登录带来了微信头像，自动更新
+    if (userInfo && userInfo.avatarUrl && !user.avatarUrl) {
+      updateData.avatarUrl = userInfo.avatarUrl
+    }
+    
     await usersCollection.doc(user._id).update({
-      data: {
-        updateTime: now
-      }
+      data: updateData
     })
+    
+    // 返回最新的用户数据（重新查询以获取最新状态）
+    const updatedResult = await usersCollection.doc(user._id).get()
     
     return {
       success: true,
       message: '登录成功',
       data: {
         isNewUser: false,
-        userInfo: user
+        userInfo: updatedResult.data
       }
     }
   } else {
-    // 新用户，创建记录
+    // 新用户，创建记录（不需要传入 userInfo，头像昵称后续通过 updateInfo 设置）
     const newUser = {
       _openid: openid,
-      nickName: userInfo.nickName || '用户',
-      avatarUrl: userInfo.avatarUrl || '',
-      gender: userInfo.gender || 0,
-      country: userInfo.country || '',
-      province: userInfo.province || '',
-      city: userInfo.city || '',
+      nickName: (userInfo && userInfo.nickName) ? userInfo.nickName : '用户',
+      avatarUrl: (userInfo && userInfo.avatarUrl) ? userInfo.avatarUrl : '',
+      gender: (userInfo && userInfo.gender) ? userInfo.gender : 0,
+      country: (userInfo && userInfo.country) ? userInfo.country : '',
+      province: (userInfo && userInfo.province) ? userInfo.province : '',
+      city: (userInfo && userInfo.city) ? userInfo.city : '',
       
       partnerId: '',
       partnerNickName: '',
@@ -143,9 +155,17 @@ async function handleUpdateInfo(openid, userInfo) {
     data: updateData
   })
   
+  // 查询并返回更新后的完整用户信息
+  const updatedResult = await usersCollection.where({
+    _openid: openid
+  }).get()
+  
   return {
     success: true,
-    message: '信息更新成功'
+    message: '信息更新成功',
+    data: {
+      userInfo: updatedResult.data[0]
+    }
   }
 }
 

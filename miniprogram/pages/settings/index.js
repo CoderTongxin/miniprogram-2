@@ -12,7 +12,12 @@ Page({
     inputCode: '',
     generating: false,
     binding: false,
-    showUnbindDialog: false
+    showUnbindDialog: false,
+    // 编辑资料相关
+    showEditProfile: false,
+    editNickName: '',
+    editAvatarUrl: '',
+    savingProfile: false
   },
 
   onLoad() {
@@ -97,6 +102,111 @@ Page({
       },
       fail: (err) => {
         console.error('检查绑定状态失败：', err);
+      }
+    });
+  },
+
+  // 打开编辑资料
+  onEditProfile() {
+    const { userInfo } = this.data;
+    this.setData({
+      showEditProfile: true,
+      editNickName: userInfo.nickName || '',
+      editAvatarUrl: userInfo.avatarUrl || ''
+    });
+  },
+
+  // 取消编辑资料
+  onCancelEditProfile() {
+    this.setData({
+      showEditProfile: false,
+      editNickName: '',
+      editAvatarUrl: ''
+    });
+  },
+
+  // 选择头像（编辑资料时）
+  onChooseAvatar(e) {
+    this.setData({
+      editAvatarUrl: e.detail.avatarUrl
+    });
+  },
+
+  // 昵称输入（编辑资料时）
+  onNicknameInput(e) {
+    this.setData({
+      editNickName: e.detail.value
+    });
+  },
+
+  // 保存资料
+  onSaveProfile() {
+    const { editNickName, editAvatarUrl, userInfo } = this.data;
+    const nickName = editNickName.trim() || userInfo.nickName;
+    const avatarUrl = editAvatarUrl || userInfo.avatarUrl;
+
+    if (!nickName) {
+      Toast({
+        context: this,
+        selector: '#t-toast',
+        message: '昵称不能为空',
+        theme: 'warning',
+        direction: 'column',
+      });
+      return;
+    }
+
+    this.setData({ savingProfile: true });
+
+    wx.cloud.callFunction({
+      name: 'userLogin',
+      data: {
+        action: 'updateInfo',
+        userInfo: { nickName, avatarUrl }
+      },
+      success: (res) => {
+        if (res.result && res.result.success) {
+          const updatedUserInfo = res.result.data ? res.result.data.userInfo : { ...userInfo, nickName, avatarUrl };
+
+          wx.setStorageSync('userInfo', updatedUserInfo);
+          app.globalData.userInfo = updatedUserInfo;
+
+          this.setData({
+            userInfo: updatedUserInfo,
+            showEditProfile: false,
+            editNickName: '',
+            editAvatarUrl: '',
+            savingProfile: false
+          });
+
+          Toast({
+            context: this,
+            selector: '#t-toast',
+            message: '资料已保存',
+            theme: 'success',
+            direction: 'column',
+          });
+        } else {
+          this.setData({ savingProfile: false });
+          Toast({
+            context: this,
+            selector: '#t-toast',
+            message: res.result.message || '保存失败',
+            theme: 'error',
+            direction: 'column',
+          });
+        }
+      },
+      fail: (err) => {
+        console.error('保存资料失败：', err);
+        this.setData({ savingProfile: false });
+        Toast({
+          context: this,
+          selector: '#t-toast',
+          message: '保存失败，请重试',
+          theme: 'error',
+          direction: 'column',
+        });
       }
     });
   },
@@ -363,6 +473,13 @@ Page({
 
   cancelUnbind() {
     this.setData({ showUnbindDialog: false });
+  },
+
+  // 进入首页
+  onGoHome() {
+    wx.reLaunch({
+      url: '/pages/home/index'
+    });
   },
 
   // 清除缓存
