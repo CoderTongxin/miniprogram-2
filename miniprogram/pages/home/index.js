@@ -311,38 +311,28 @@ Page({
     });
   },
 
-  // 计算本月支出
+  // 计算本月支出（使用统计接口获取当前月已完成的真实数据）
   calculateMonthlyExpense() {
     const userInfo = wx.getStorageSync('userInfo');
     if (!userInfo || !userInfo._openid) return;
-    
-    // 获取本月已完成的电子流
+
+    const now = new Date();
+    const currentYear = now.getFullYear();
+    const currentMonth = now.getMonth() + 1;
+
     wx.cloud.callFunction({
       name: 'flowManager',
       data: {
-        action: 'getList',
-        tab: 'completed',
-        type: 'all'
+        action: 'getStatistics',
+        periodType: 'month',
+        year: currentYear,
+        month: currentMonth
       },
       success: (res) => {
         if (res.result && res.result.success) {
-          const flows = res.result.data;
-          
-          // 计算本月的支出（只计算当前用户作为申请人的）
-          const now = new Date();
-          const currentMonth = now.getMonth() + 1;
-          const currentYear = now.getFullYear();
-          
-          let totalAmount = 0;
-          flows.forEach(flow => {
-            // 简单处理：只要是本月的都算（实际应该解析 createTime）
-            const amount = parseFloat(flow.amount) || 0;
-            totalAmount += amount;
-          });
-          
-          // 格式化金额
-          const formattedAmount = totalAmount.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
-          
+          // getStatistics 返回的 totalAmount 已是当前月已完成金额的格式化字符串（元）
+          const totalAmount = res.result.data.totalAmount || '0.00';
+          const formattedAmount = totalAmount.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
           this.setData({
             monthlyExpense: formattedAmount
           });
@@ -350,6 +340,7 @@ Page({
       },
       fail: (err) => {
         console.error('计算本月支出失败：', err);
+        this.setData({ monthlyExpense: '0.00' });
       }
     });
   },
