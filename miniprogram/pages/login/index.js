@@ -440,5 +440,21 @@ Page({
     wx.navigateTo({
       url: '/pages/agreement/index?tab=privacy'
     });
+  },
+
+  // 转发给朋友
+  onShareAppMessage() {
+    return {
+      title: '快来一起使用情侣电子流，轻松管理两人开支~',
+      path: '/pages/login/index'
+    };
+  },
+
+  // 分享到朋友圈
+  onShareTimeline() {
+    return {
+      title: '情侣电子流 · 轻松管理两人开支',
+      query: ''
+    };
   }
 });

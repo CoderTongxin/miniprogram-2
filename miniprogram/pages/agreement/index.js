@@ -31,5 +31,25 @@ Page({
     wx.setNavigationBarTitle({
       title: title
     });
+  },
+
+  // 转发给朋友
+  onShareAppMessage() {
+    const { activeTab } = this.data;
+    const title = activeTab === 'privacy' ? '情侣电子流 · 隐私政策' : '情侣电子流 · 用户协议';
+    return {
+      title,
+      path: `/pages/agreement/index?tab=${activeTab}`
+    };
+  },
+
+  // 分享到朋友圈
+  onShareTimeline() {
+    const { activeTab } = this.data;
+    const title = activeTab === 'privacy' ? '情侣电子流 · 隐私政策' : '情侣电子流 · 用户协议';
+    return {
+      title,
+      query: `tab=${activeTab}`
+    };
   }
 });

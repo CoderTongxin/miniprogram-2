@@ -145,6 +145,26 @@ Page({
     });
   },
 
+  // 转发给朋友
+  onShareAppMessage() {
+    const { currentPeriodText, totalAmount, approveRate, isDemo } = this.data;
+    const demoTip = isDemo ? '（示例）' : '';
+    return {
+      title: `${demoTip}${currentPeriodText} 总支出 ¥${totalAmount}，审批通过率 ${approveRate}%`,
+      path: '/pages/statistics/index'
+    };
+  },
+
+  // 分享到朋友圈
+  onShareTimeline() {
+    const { currentPeriodText, totalAmount, isDemo } = this.data;
+    const demoTip = isDemo ? '（示例）' : '';
+    return {
+      title: `${demoTip}情侣账单 · ${currentPeriodText}共支出 ¥${totalAmount}`,
+      query: ''
+    };
+  },
+
   // 加载统计数据
   loadStatistics() {
     const { periodType, selectedYear, selectedMonth } = this.data;

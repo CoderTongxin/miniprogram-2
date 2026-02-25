@@ -545,5 +545,23 @@ Page({
     const minute = date.getMinutes().toString().padStart(2, '0');
     
     return `${year}-${month}-${day} ${hour}:${minute}`;
+  },
+
+  // 转发给朋友
+  onShareAppMessage() {
+    const { userInfo } = this.data;
+    const name = userInfo && userInfo.nickName ? userInfo.nickName : '我';
+    return {
+      title: `${name}邀请你使用情侣电子流，一起管理两人开支~`,
+      path: '/pages/login/index'
+    };
+  },
+
+  // 分享到朋友圈
+  onShareTimeline() {
+    return {
+      title: '情侣电子流 · 轻松管理两人开支',
+      query: ''
+    };
   }
 });

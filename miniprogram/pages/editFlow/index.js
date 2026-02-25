@@ -215,6 +215,29 @@ Page({
     });
   },
 
+  // 转发给朋友
+  onShareAppMessage() {
+    const { isDemo, isEditMode } = this.data;
+    if (isDemo) {
+      return {
+        title: '体验情侣电子流 · 轻松提交审批申请',
+        path: '/pages/editFlow/index?demo=1'
+      };
+    }
+    return {
+      title: isEditMode ? '重新提交电子流申请' : '快来一起使用情侣电子流吧',
+      path: '/pages/home/index'
+    };
+  },
+
+  // 分享到朋友圈
+  onShareTimeline() {
+    return {
+      title: '情侣电子流 · 轻松提交审批申请',
+      query: ''
+    };
+  },
+
   // 游客横幅点击
   onGuestBannerTap() {
     wx.navigateTo({ url: '/pages/login/index' });

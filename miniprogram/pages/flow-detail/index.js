@@ -328,6 +328,36 @@ Page({
     });
   },
 
+  // 转发给朋友
+  onShareAppMessage() {
+    const { flowData, flowId, isDemo } = this.data;
+    if (isDemo) {
+      return {
+        title: '体验情侣电子流 · 申请审批一目了然',
+        path: '/pages/flow-detail/index?demo=1'
+      };
+    }
+    const title = flowData.content
+      ? `${flowData.applicantName || ''}的电子流申请：${flowData.content.slice(0, 20)}${flowData.content.length > 20 ? '...' : ''}`
+      : '查看这笔电子流申请';
+    return {
+      title,
+      path: `/pages/flow-detail/index?id=${flowId}`
+    };
+  },
+
+  // 分享到朋友圈
+  onShareTimeline() {
+    const { flowData, isDemo } = this.data;
+    const title = isDemo
+      ? '体验情侣电子流 · 申请审批一目了然'
+      : `电子流申请 · ${flowData.typeText || ''}¥${flowData.amount || ''}`;
+    return {
+      title,
+      query: isDemo ? 'demo=1' : `id=${this.data.flowId}`
+    };
+  },
+
   // 重新编辑
   onEdit() {
     if (!this.requireLoginForAction()) return;
