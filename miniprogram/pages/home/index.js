@@ -520,10 +520,10 @@ Page({
 
   // 转发给朋友
   onShareAppMessage() {
-    const { userInfo, monthlyExpense, isGuest } = this.data;
+    const { userInfo, isGuest } = this.data;
     const name = isGuest ? '我' : (userInfo.nickName || '我');
     return {
-      title: `${name}在用情侣电子流管理家庭开支，本月已支出 ¥${monthlyExpense}`,
+      title: `${name}在用准了吗管理家庭开支`,
       path: '/pages/home/index'
     };
   },
