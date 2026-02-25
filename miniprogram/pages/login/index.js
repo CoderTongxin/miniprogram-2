@@ -445,7 +445,7 @@ Page({
   // 转发给朋友
   onShareAppMessage() {
     return {
-      title: '快来一起使用情侣电子流，轻松管理两人开支~',
+      title: '快来一起使用准了吗，轻松管理两人开支~',
       path: '/pages/login/index'
     };
   },

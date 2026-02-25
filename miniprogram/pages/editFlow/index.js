@@ -220,12 +220,12 @@ Page({
     const { isDemo, isEditMode } = this.data;
     if (isDemo) {
       return {
-        title: '体验情侣电子流 · 轻松提交审批申请',
+        title: '体验准了吗 · 轻松提交审批情侣电子流',
         path: '/pages/editFlow/index?demo=1'
       };
     }
     return {
-      title: isEditMode ? '重新提交电子流申请' : '快来一起使用情侣电子流吧',
+      title: isEditMode ? '重新提交电子流申请' : '快来一起使用准了吗吧',
       path: '/pages/home/index'
     };
   },

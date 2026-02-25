@@ -552,7 +552,7 @@ Page({
     const { userInfo } = this.data;
     const name = userInfo && userInfo.nickName ? userInfo.nickName : '我';
     return {
-      title: `${name}邀请你使用情侣电子流，一起管理两人开支~`,
+      title: `${name}邀请你使用准了吗，一起管理两人开支~`,
       path: '/pages/login/index'
     };
   },
@@ -560,7 +560,7 @@ Page({
   // 分享到朋友圈
   onShareTimeline() {
     return {
-      title: '情侣电子流 · 轻松管理两人开支',
+      title: '准了吗情侣电子流 · 轻松管理两人开支',
       query: ''
     };
   }
