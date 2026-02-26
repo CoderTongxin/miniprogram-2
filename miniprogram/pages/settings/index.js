@@ -20,6 +20,9 @@ Page({
     savingProfile: false
   },
 
+  // 定时检测绑定状态的定时器
+  bindCheckTimer: null,
+
   onLoad() {
     wx.showLoading({
       title: '加载中...',
@@ -35,73 +38,136 @@ Page({
 
   onShow() {
     this.loadUserInfo();
-    // 检查是否被其他用户绑定
-    this.checkBindStatusFromCloud();
+    // 启动绑定状态自动检测
+    this.startBindCheckTimer();
   },
 
-  // 加载用户信息
+  onHide() {
+    // 页面隐藏时清除定时器
+    this.stopBindCheckTimer();
+  },
+
+  onUnload() {
+    // 页面卸载时清除定时器
+    this.stopBindCheckTimer();
+  },
+
+  // 加载用户信息，同时从云端刷新并检测是否被被动绑定
   loadUserInfo() {
-    const userInfo = wx.getStorageSync('userInfo');
-    if (userInfo) {
-      this.setData({ userInfo });
-    } else {
-      wx.redirectTo({
-        url: '/pages/login/index'
-      });
+    const cachedUserInfo = wx.getStorageSync('userInfo');
+    if (!cachedUserInfo) {
+      wx.redirectTo({ url: '/pages/login/index' });
+      return;
     }
-  },
 
-  // 从云端检查绑定状态（检测被动绑定）
-  checkBindStatusFromCloud() {
-    const currentUserInfo = wx.getStorageSync('userInfo');
-    if (!currentUserInfo) return;
-    
-    const wasNotBound = currentUserInfo.relationStatus !== 'paired';
-    
+    // 先用本地缓存渲染页面，避免白屏
+    const wasNotBound = cachedUserInfo.relationStatus !== 'paired';
+    this.setData({ userInfo: cachedUserInfo });
+
+    // 从云端拉取最新数据（检测被动绑定 / 伴侣信息变更）
     wx.cloud.callFunction({
       name: 'userLogin',
-      data: {
-        action: 'login',
-        userInfo: currentUserInfo
-      },
+      data: { action: 'login', userInfo: cachedUserInfo },
       success: (res) => {
-        if (res.result && res.result.success) {
-          const latestUserInfo = res.result.data.userInfo;
-          
-          // 更新本地用户信息
-          wx.setStorageSync('userInfo', latestUserInfo);
-          app.globalData.userInfo = latestUserInfo;
-          
-          if (latestUserInfo.partnerId) {
-            app.globalData.partnerId = latestUserInfo.partnerId;
-          }
-          
-          // 检测到被其他用户绑定（从未绑定变为已绑定）
-          if (wasNotBound && latestUserInfo.relationStatus === 'paired' && latestUserInfo.partnerId) {
-            // 更新页面状态
-            this.setData({ userInfo: latestUserInfo });
-            
-            // 显示提示并跳转
-            wx.showModal({
-              title: '绑定成功',
-              content: `已经被 ${latestUserInfo.partnerNickName} 绑定为情侣，现在系统会自动为您跳转到首页`,
-              showCancel: false,
-              success: () => {
-                setTimeout(() => {
-                  wx.reLaunch({
-                    url: '/pages/home/index'
-                  });
-                }, 500);
-              }
-            });
-          } else {
-            // 正常更新页面数据
-            this.setData({ userInfo: latestUserInfo });
-          }
+        if (!res.result || !res.result.success) return;
+
+        const latestUserInfo = res.result.data.userInfo;
+        wx.setStorageSync('userInfo', latestUserInfo);
+        app.globalData.userInfo = latestUserInfo;
+        if (latestUserInfo.partnerId) {
+          app.globalData.partnerId = latestUserInfo.partnerId;
+        }
+
+        this.setData({ userInfo: latestUserInfo });
+
+        // 检测到被伴侣被动绑定（本地未绑定 → 云端已绑定）
+        if (wasNotBound && latestUserInfo.relationStatus === 'paired') {
+          wx.showModal({
+            title: '绑定成功 🎉',
+            content: `${latestUserInfo.partnerNickName} 已将你绑定为情侣，页面已刷新`,
+            showCancel: false,
+            confirmText: '知道了'
+          });
+          // 绑定成功后停止自动检测
+          this.stopBindCheckTimer();
         }
       },
       fail: (err) => {
-        console.error('检查绑定状态失败：', err);
+        console.error('刷新用户信息失败：', err);
+      }
+    });
+  },
+
+  // 启动定时检测绑定状态（仅在未绑定时启动）
+  startBindCheckTimer() {
+    // 先清除已有的定时器
+    this.stopBindCheckTimer();
+
+    const { userInfo } = this.data;
+    // 只有在用户未绑定时才启动定时检测
+    if (!userInfo || userInfo.relationStatus === 'paired') {
+      return;
+    }
+
+    // 每10秒检测一次绑定状态
+    this.bindCheckTimer = setInterval(() => {
+      this.checkBindStatusSilently();
+    }, 10000);
+  },
+
+  // 停止定时检测
+  stopBindCheckTimer() {
+    if (this.bindCheckTimer) {
+      clearInterval(this.bindCheckTimer);
+      this.bindCheckTimer = null;
+    }
+  },
+
+  // 静默检测绑定状态（不显示 loading）
+  checkBindStatusSilently() {
+    const { userInfo } = this.data;
+    if (!userInfo) return;
+
+    // 如果已经绑定，停止检测
+    if (userInfo.relationStatus === 'paired') {
+      this.stopBindCheckTimer();
+      return;
+    }
+
+    wx.cloud.callFunction({
+      name: 'userLogin',
+      data: { action: 'login', userInfo: userInfo },
+      success: (res) => {
+        if (!res.result || !res.result.success) return;
+
+        const latestUserInfo = res.result.data.userInfo;
+        
+        // 检测到被伴侣被动绑定
+        if (userInfo.relationStatus !== 'paired' && latestUserInfo.relationStatus === 'paired') {
+          // 更新缓存和全局数据
+          wx.setStorageSync('userInfo', latestUserInfo);
+          app.globalData.userInfo = latestUserInfo;
+          if (latestUserInfo.partnerId) {
+            app.globalData.partnerId = latestUserInfo.partnerId;
+          }
+
+          // 更新页面数据
+          this.setData({ userInfo: latestUserInfo });
+
+          // 显示绑定成功提示
+          wx.showModal({
+            title: '绑定成功 🎉',
+            content: `${latestUserInfo.partnerNickName} 已将你绑定为情侣，页面已刷新`,
+            showCancel: false,
+            confirmText: '知道了'
+          });
+
+          // 停止定时检测
+          this.stopBindCheckTimer();
+        }
+      },
+      fail: (err) => {
+        console.error('静默检测绑定状态失败：', err);
       }
     });
   },
@@ -125,10 +191,26 @@ Page({
     });
   },
 
-  // 选择头像（编辑资料时）
+  // 选择头像（编辑资料时）- 仅本地预览，实际上传在保存时进行
   onChooseAvatar(e) {
     this.setData({
-      editAvatarUrl: e.detail.avatarUrl
+      editAvatarUrl: e.detail.avatarUrl  // 临时路径，仅用于预览
+    });
+  },
+
+  // 将临时头像路径上传至云存储，返回永久 fileID
+  uploadAvatar(tempFilePath) {
+    return new Promise((resolve, reject) => {
+      const { userInfo } = this.data;
+      // 每个用户固定一个路径，新头像会覆盖旧头像，避免累积垃圾文件
+      const cloudPath = `avatars/${userInfo._openid}.jpg`;
+
+      wx.cloud.uploadFile({
+        cloudPath,
+        filePath: tempFilePath,
+        success: (res) => resolve(res.fileID),
+        fail: (err) => reject(err)
+      });
     });
   },
 
@@ -140,10 +222,10 @@ Page({
   },
 
   // 保存资料
-  onSaveProfile() {
+  async onSaveProfile() {
     const { editNickName, editAvatarUrl, userInfo } = this.data;
     const nickName = editNickName.trim() || userInfo.nickName;
-    const avatarUrl = editAvatarUrl || userInfo.avatarUrl;
+    let avatarUrl = editAvatarUrl || userInfo.avatarUrl;
 
     if (!nickName) {
       Toast({
@@ -157,6 +239,24 @@ Page({
     }
 
     this.setData({ savingProfile: true });
+
+    // 若头像是临时路径（非 cloud:// 永久地址），先上传到云存储
+    if (avatarUrl && !avatarUrl.startsWith('cloud://')) {
+      try {
+        avatarUrl = await this.uploadAvatar(avatarUrl);
+      } catch (err) {
+        console.error('头像上传失败：', err);
+        this.setData({ savingProfile: false });
+        Toast({
+          context: this,
+          selector: '#t-toast',
+          message: '头像上传失败，请重试',
+          theme: 'error',
+          direction: 'column',
+        });
+        return;
+      }
+    }
 
     wx.cloud.callFunction({
       name: 'userLogin',
@@ -321,16 +421,23 @@ Page({
       success: (res) => {
         if (res.result && res.result.success) {
           const partnerName = res.result.data.partner.nickName;
-          
-          // 显示成功提示
-          wx.showModal({
-            title: '绑定成功',
-            content: `已成功与 ${partnerName} 绑定为情侣，现在系统会自动为您跳转到首页`,
-            showCancel: false,
-            success: () => {
-              // 刷新用户信息并跳转
-              this.refreshUserInfo(true);
-            }
+
+          // 绑定成功，停止定时检测
+          this.stopBindCheckTimer();
+
+          // 先刷新用户信息，再提示（保证页面数据已更新）
+          this.refreshUserInfo(() => {
+            wx.showModal({
+              title: '绑定成功 🎉',
+              content: `已成功与 ${partnerName} 绑定为情侣！`,
+              confirmText: '去首页',
+              cancelText: '留在此页',
+              success: (modalRes) => {
+                if (modalRes.confirm) {
+                  wx.reLaunch({ url: '/pages/home/index' });
+                }
+              }
+            });
           });
         } else {
           this.setData({ binding: false });
@@ -357,10 +464,10 @@ Page({
     });
   },
 
-  // 刷新用户信息
-  refreshUserInfo(shouldJumpToHome = false) {
+  // 刷新用户信息，完成后执行可选回调
+  refreshUserInfo(onComplete = null) {
     wx.showLoading({ title: '加载中...' });
-    
+
     wx.cloud.callFunction({
       name: 'userLogin',
       data: {
@@ -369,36 +476,30 @@ Page({
       },
       success: (res) => {
         wx.hideLoading();
-        
+
         if (res.result && res.result.success) {
           const userData = res.result.data.userInfo;
           wx.setStorageSync('userInfo', userData);
           app.globalData.userInfo = userData;
-          
+
           if (userData.partnerId) {
             app.globalData.partnerId = userData.partnerId;
             wx.setStorageSync('partnerId', userData.partnerId);
           }
-          
+
           this.setData({
             userInfo: userData,
             inputCode: '',
             binding: false
           });
-
-          // 如果需要跳转到首页
-          if (shouldJumpToHome && userData.relationStatus === 'paired') {
-            setTimeout(() => {
-              wx.reLaunch({
-                url: '/pages/home/index'
-              });
-            }, 800);
-          }
         }
+
+        if (typeof onComplete === 'function') onComplete();
       },
       fail: () => {
         wx.hideLoading();
         this.setData({ binding: false });
+        if (typeof onComplete === 'function') onComplete();
       }
     });
   },
@@ -447,6 +548,9 @@ Page({
             theme: 'success',
             direction: 'column',
           });
+
+          // 解除绑定后重新启动定时检测
+          this.startBindCheckTimer();
         } else {
           Toast({
             context: this,
