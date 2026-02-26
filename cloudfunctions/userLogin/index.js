@@ -160,11 +160,29 @@ async function handleUpdateInfo(openid, userInfo) {
     _openid: openid
   }).get()
   
+  const updatedUser = updatedResult.data[0]
+
+  // 若有伴侣，同步更新对方记录中缓存的昵称和头像
+  if (updatedUser && updatedUser.partnerId) {
+    const partnerCacheUpdate = {}
+    if (userInfo.nickName) partnerCacheUpdate.partnerNickName = userInfo.nickName
+    if (userInfo.avatarUrl) partnerCacheUpdate.partnerAvatarUrl = userInfo.avatarUrl
+
+    if (Object.keys(partnerCacheUpdate).length > 0) {
+      partnerCacheUpdate.updateTime = new Date()
+      await usersCollection.where({
+        _openid: updatedUser.partnerId
+      }).update({
+        data: partnerCacheUpdate
+      })
+    }
+  }
+
   return {
     success: true,
     message: '信息更新成功',
     data: {
-      userInfo: updatedResult.data[0]
+      userInfo: updatedUser
     }
   }
 }

@@ -68,7 +68,7 @@ Page({
   async loadUserInfo() {
     try {
       const userInfo = wx.getStorageSync('userInfo');
-      
+
       if (!userInfo || !userInfo._openid) {
         Toast({
           context: this,
@@ -99,23 +99,18 @@ Page({
         return;
       }
 
-      // 获取伴侣信息
-      const db = wx.cloud.database();
-      const partnerResult = await db.collection('users').where({
-        _openid: userInfo.partnerId
-      }).get();
-
-      if (partnerResult.data.length > 0) {
-        const partner = partnerResult.data[0];
-        this.setData({
-          partnerInfo: partner,
-          approver: {
-            name: partner.nickName,
-            avatar: partner.avatarUrl,
-            role: '默认审批人'
-          }
-        });
-      }
+      // 使用云端同步后的 userInfo 中的伴侣缓存信息
+      this.setData({
+        partnerInfo: {
+          nickName: userInfo.partnerNickName,
+          avatarUrl: userInfo.partnerAvatarUrl
+        },
+        approver: {
+          name: userInfo.partnerNickName,
+          avatar: userInfo.partnerAvatarUrl,
+          role: '默认审批人'
+        }
+      });
     } catch (error) {
       console.error('加载用户信息失败：', error);
       Toast({

@@ -24,7 +24,8 @@ App({
       userInfo: null,
       partnerId: null, // 伴侣的用户ID
       flowList: [], // 电子流列表缓存
-      isGuest: true // 游客模式标识
+      isGuest: true, // 游客模式标识
+      userInfoReady: null // 云端刷新 userInfo 的 Promise，供各页面 await
     };
     
     if (!wx.cloud) {
@@ -36,8 +37,8 @@ App({
       });
     }
 
-    // 获取用户信息（不强制登录）
-    this.getUserInfo();
+    // 每次启动时从云端刷新用户信息（包含最新的伴侣昵称/头像）
+    this.refreshUserInfoFromCloud();
   },
 
   // 监听微信隐私接口授权
@@ -84,12 +85,50 @@ App({
     return true;
   },
 
-  // 获取用户信息
-  getUserInfo() {
-    const userInfo = wx.getStorageSync('userInfo');
-    if (userInfo) {
-      this.globalData.userInfo = userInfo;
+  // 每次启动时从云端刷新用户信息，并将 Promise 存入 globalData.userInfoReady
+  // 各页面可 await 此 Promise 以获取最新数据（含伴侣最新昵称/头像）
+  refreshUserInfoFromCloud() {
+    const cachedUserInfo = wx.getStorageSync('userInfo');
+
+    if (!cachedUserInfo || !cachedUserInfo._openid) {
+      // 未登录，直接 resolve null
+      this.globalData.isGuest = true;
+      return;
     }
+
+    // 先用本地缓存让 globalData 有值，避免页面读到 null
+    this.globalData.userInfo = cachedUserInfo;
+    this.globalData.isGuest = false;
+    if (cachedUserInfo.partnerId) {
+      this.globalData.partnerId = cachedUserInfo.partnerId;
+    }
+
+    // 异步从云端拉取最新数据（会包含伴侣最新昵称/头像）
+    new Promise((resolve) => {
+      wx.cloud.callFunction({
+        name: 'userLogin',
+        data: { action: 'login', userInfo: cachedUserInfo },
+        success: (res) => {
+          if (res.result && res.result.success) {
+            const latestUserInfo = res.result.data.userInfo;
+            wx.setStorageSync('userInfo', latestUserInfo);
+            this.globalData.userInfo = latestUserInfo;
+            this.globalData.isGuest = false;
+            if (latestUserInfo.partnerId) {
+              this.globalData.partnerId = latestUserInfo.partnerId;
+            }
+            resolve(latestUserInfo);
+          } else {
+            resolve(cachedUserInfo);
+          }
+        },
+        fail: () => {
+          // 云端刷新失败，降级使用本地缓存
+          console.warn('app.js: 云端刷新用户信息失败，使用本地缓存');
+          resolve(cachedUserInfo);
+        }
+      });
+    });
   },
 
   // 保存用户信息
