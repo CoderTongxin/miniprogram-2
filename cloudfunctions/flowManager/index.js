@@ -177,6 +177,28 @@ async function getFlowList(openid, tab = 'todo', type = 'all', page = 1, pageSiz
     .limit(pageSize)
     .get()
   
+  // 收集所有涉及的用户 ID
+  const userIds = new Set()
+  result.data.forEach(flow => {
+    if (flow.applicantId) userIds.add(flow.applicantId)
+    if (flow.approverId) userIds.add(flow.approverId)
+  })
+  
+  // 批量查询用户信息，获取最新的昵称和头像
+  const userMap = {}
+  if (userIds.size > 0) {
+    const usersResult = await usersCollection.where({
+      _openid: _.in([...userIds])
+    }).get()
+    
+    usersResult.data.forEach(user => {
+      userMap[user._openid] = {
+        nickName: user.nickName || '用户',
+        avatarUrl: user.avatarUrl || ''
+      }
+    })
+  }
+  
   // 格式化数据
   const flows = result.data.map(flow => {
     // 类型文本映射
@@ -193,14 +215,18 @@ async function getFlowList(openid, tab = 'todo', type = 'all', page = 1, pageSiz
       rejected: '已驳回'
     }
     
+    // 从用户表获取最新的用户信息
+    const applicantInfo = userMap[flow.applicantId] || { nickName: '用户', avatarUrl: '' }
+    const approverInfo = userMap[flow.approverId] || { nickName: '用户', avatarUrl: '' }
+    
     return {
       id: flow._id,
       applicantId: flow.applicantId,
-      applicantName: flow.applicantName,
-      applicantAvatar: flow.applicantAvatar,
+      applicantName: applicantInfo.nickName,
+      applicantAvatar: applicantInfo.avatarUrl,
       approverId: flow.approverId,
-      approverName: flow.approverName,
-      approverAvatar: flow.approverAvatar,
+      approverName: approverInfo.nickName,
+      approverAvatar: approverInfo.avatarUrl,
       content: flow.content,
       amount: formatAmount(flow.amount),
       type: flow.type,
@@ -276,15 +302,11 @@ async function createFlow(openid, flowData) {
   // 生成伴侣关系ID（用于过滤历史数据）
   const partnerRelationId = generatePartnerRelationId(openid, partner._openid)
   
-  // 创建电子流记录
+  // 创建电子流记录（只存储 ID，不存储用户名和头像等可变信息）
   const newFlow = {
     _openid: openid,
     applicantId: openid,
-    applicantName: user.nickName,
-    applicantAvatar: user.avatarUrl,
     approverId: partner._openid,
-    approverName: partner.nickName,
-    approverAvatar: partner.avatarUrl,
     partnerRelationId: partnerRelationId, // 记录当前伴侣关系
     content: flowData.content,
     amount: amount,
@@ -421,6 +443,25 @@ async function getFlowDetail(openid, flowId) {
     }
   }
   
+  // 从用户表查询申请人和审批人的最新信息
+  const usersCollection = db.collection('users')
+  const userIds = [flow.applicantId, flow.approverId].filter(id => id)
+  
+  const usersResult = await usersCollection.where({
+    _openid: _.in(userIds)
+  }).get()
+  
+  const userMap = {}
+  usersResult.data.forEach(user => {
+    userMap[user._openid] = {
+      nickName: user.nickName || '用户',
+      avatarUrl: user.avatarUrl || ''
+    }
+  })
+  
+  const applicantInfo = userMap[flow.applicantId] || { nickName: '用户', avatarUrl: '' }
+  const approverInfo = userMap[flow.approverId] || { nickName: '用户', avatarUrl: '' }
+  
   // 格式化数据
   const typeTextMap = {
     funds: '拨款',
@@ -437,11 +478,11 @@ async function getFlowDetail(openid, flowId) {
   const formattedFlow = {
     id: flow._id,
     applicantId: flow.applicantId,
-    applicantName: flow.applicantName,
-    applicantAvatar: flow.applicantAvatar,
+    applicantName: applicantInfo.nickName,
+    applicantAvatar: applicantInfo.avatarUrl,
     approverId: flow.approverId,
-    approverName: flow.approverName,
-    approverAvatar: flow.approverAvatar,
+    approverName: approverInfo.nickName,
+    approverAvatar: approverInfo.avatarUrl,
     content: flow.content,
     amount: formatAmount(flow.amount),
     type: flow.type,
